@@ -15,12 +15,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: '3.8'
           
-     - name: Checkout ELI
+      - name: Checkout ELI
         run: |
           git clone --depth=1 --branch=gh-pages https://github.com/osmlab/editor-layer-index.git
           
-     - name: Run Watchdog
+      - name: Run Watchdog
         run: |
           python watchdog.py
