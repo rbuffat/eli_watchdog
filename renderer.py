@@ -1,3 +1,4 @@
+import html
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
@@ -37,9 +38,9 @@ def render_countries(data):
             collect[country_key].append({
                 'name': d.get('name', 'Not available'),
                 'url': github_url,
-                'imagery': d.get('imagery', 'Not available'),
-                'license_url': d.get('license_url', 'Not available'),
-                'privacy_policy_url': d.get('privacy_policy_url', 'Not available')
+                'imagery': html.escape(d.get('imagery', 'Not available')),
+                'license_url': html.escape(d.get('license_url', 'Not available')),
+                'privacy_policy_url': html.escape(d.get('privacy_policy_url', 'Not available'))
             })
     countries = [{'name': name, 'region': region, 'sources': collect[(name, region)]} for name, region in collect]
 
