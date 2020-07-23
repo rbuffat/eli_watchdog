@@ -192,11 +192,6 @@ def fetch(eli_path):
     for filename in glob.glob(os.path.join(eli_path, '**', '*.geojson'), recursive=True):
         dirs = filename.split(os.sep)
 
-        # TODO temporarily limit number of sources
-        if 'ch' not in dirs:
-            continue
-        jobs.append(filename)
-
     with multiprocessing.Pool(processes=cpus) as pool:
         results = pool.map(process_source, jobs)
     return results
