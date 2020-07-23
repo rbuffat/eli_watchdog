@@ -1,7 +1,8 @@
 name: ELI Watchdog
-# This workflow is triggered on pushes to the repository.
-on: [push, pull_request]
 
+on:
+  schedule:
+    - cron:  '0 0 0 1/1 * ? *'
 
 jobs:
   build:
