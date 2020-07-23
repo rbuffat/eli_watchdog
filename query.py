@@ -188,10 +188,10 @@ def process_source(filename):
 def fetch(eli_path):
     jobs = []
     for filename in glob.glob(os.path.join(eli_path, '**', '*.geojson'), recursive=True):
-        dirs = filename.split(os.sep)
-        # TODO temporarily limit number of sources
-        if 'europe' not in dirs:
-            continue
+        # dirs = filename.split(os.sep)
+        # # TODO temporarily limit number of sources
+        # if 'europe' not in dirs:
+        #     continue
         jobs.append(filename)
 
     with multiprocessing.Pool(processes=cpus) as pool:
