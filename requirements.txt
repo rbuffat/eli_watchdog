@@ -1,0 +1,7 @@
+ requests==2.24.0
+ shapely==1.7.0
+ mercantile==1.1.5
+ owslib==0.20.0
+ certifi==2020.6.20
+ jinja2==2.11.2
+ 

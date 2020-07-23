@@ -1,0 +1,27 @@
+<div class="accordion" id="regions">
+  {% for region in regions %}
+  <div class="card">
+    <div class="card-header" id="heading-{{ region.name }}">
+      <h2 class="mb-0">
+        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}">
+          {{ region.name }}
+        </button>
+      </h2>
+    </div>
+
+    <div id="collapse-{{ region.name }}" class="collapse" aria-labelledby="heading-{{ region.name }}" data-parent="#regions">
+      <div class="card-body">
+        <ul class="nav flex-column">
+          {% for country in region.countries %}
+          <li class="nav-item">
+            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ country }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ country }}">
+              {{ country }}
+            </button>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
