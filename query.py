@@ -1,50 +1,155 @@
+import asyncio
 import glob
 import json
-import multiprocessing
 import os
-import certifi
-import requests
-from shapely.geometry import shape
+import aiofiles
+import aiohttp
+from shapely.geometry import shape, Point
 import mercantile
 from owslib.wms import WebMapService
 from owslib.wmts import WebMapTileService
 import warnings
 import re
-
-cpus = multiprocessing.cpu_count()
+from aiohttp import ClientSession
 
 GOOD = 'good'
 
 
-def get_status_code(url):
-    """
-    Check status code of url
-    """
-    headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Image check)'}
+async def test_url(url: str, session: ClientSession, **kwargs):
     try:
-        r = requests.get(url,
-                         headers=headers,
-                         verify=certifi.where())
-        if r.status_code == 200:
+        resp = await session.request(method="GET", url=url, **kwargs)
+        status_code = resp.status
+        if status_code == 200:
             return GOOD
         else:
-            return "HTTP Code: {}".format(r.status_code)
-    except:
-        # Try without SSL verification
+            return "HTTP Code {} for {}".format(status_code, url)
+    except asyncio.TimeoutError:
+        return "Timeout for : {}".format(url)
+    except Exception as e:
+        return repr(e)
+
+
+async def check_tms(source, session: ClientSession, **kwargs):
+    # TODO deal with {apikey}, {-y}
+    try:
+
+        geom = shape(source['geometry'])
+        centroid = geom.centroid
+
+        tms_url = source['properties']['url']
+        parameters = {}
+
+        if "switch:" in tms_url:
+            match = re.search(r'switch:?([^}]*)', tms_url)
+            switches = match.group(1).split(',')
+            tms_url = tms_url.replace(match.group(0), 'switch')
+            parameters['switch'] = switches[0]
+
+        zoom = 0
+        if 'min_zoom' in source['properties']:
+            zoom = source['properties']['min_zoom']
+        parameters['zoom'] = zoom
+
+        tile = mercantile.tile(centroid.x, centroid.y, zoom)
+        parameters['x'] = tile.x
+        parameters['y'] = tile.y
+
+        if '{-y}' in tms_url:
+            tms_url = tms_url.replace('{-y}', '{y}')
+
+        tms_url = tms_url.format(**parameters)
+        tms_url_status = await test_url(tms_url, session)
+        return tms_url_status
+
+    except Exception as e:
+        return repr(e)
+
+
+async def check_wms(source, session: ClientSession):
+    wms_url = source['properties']['url']
+    wms_url_split = wms_url.rsplit('?', 1)
+    wms_args_list = wms_url_split[1].split("&")
+    wms_args = {}
+    for wms_arg in wms_args_list:
+        k, v = wms_arg.split("=")
+        wms_args[k.lower()] = v
+
+    if 'layers' not in wms_args:
+        return "No layers specified in: {}".format(wms_url)
+
+    def get_GetCapabilitie_url(wmsversion):
+        get_capabilities_args = {'service': 'WMS',
+                                 'request': 'GetCapabilities',
+                                 'version': wmsversion}
+        if 'map' in wms_args:
+            get_capabilities_args['map'] = wms_args['map']
+
+        wms_base_url = wms_url_split[0]
+        wms_args_str = "&".join(["{}={}".format(k, v) for k, v in get_capabilities_args.items()])
+        return "{}?{}".format(wms_base_url, wms_args_str)
+
+    wms = None
+    for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
         try:
-            r = requests.get(url,
-                             headers=headers,
-                             verify=False)
-            if r.status_code == 200:
-                return GOOD
-            else:
-                return "HTTP Code: {}".format(r.status_code)
+            wms_getcapabilites_url = get_GetCapabilitie_url(wmsversion)
+            response = await session.request(method="GET", url=wms_getcapabilites_url)
+            status_code = response.status
+            if status_code == 200:
+                xml = await response.text()
+                xml = xml.encode('utf-8')
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    wms = WebMapService(wms_getcapabilites_url, xml=xml, version=wmsversion)
         except Exception as e:
-            return str(e)
-    return None
+            print(repr(e))
+            continue
+
+    if wms is None:
+        return "Could not access GetCapabilities of {}".format(wms_url_split[0])
 
 
-def process_source(filename):
+    layer_arg = wms_args['layers']
+    not_found_layers = []
+    for layer_name in layer_arg.split(","):
+        if not layer_name in wms.contents:
+            not_found_layers.append(layer_name)
+    if len(not_found_layers) > 0:
+        return "Layers {layers} could not be found under url '{url}'.".format(
+            layers=",".join(not_found_layers),
+            url=wms_getcapabilites_url)
+    else:
+        return GOOD
+
+
+async def check_wms_endpoint(source, session: ClientSession):
+    # TODO assumptions
+    wms_url = source['properties']['url']
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
+            async with session.get(wms_url) as response:
+                xml = await response.text()
+            wms = WebMapService(wms_url, xml=xml.encode('utf-8'))
+            return GOOD
+    except Exception as e:
+        return repr(e)
+
+
+async def check_wmts(source, session):
+    try:
+        wmts_url = source['properties']['url']
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            async with session.get(wmts_url) as response:
+                xml = await response.text()
+                wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
+            return GOOD
+    except Exception as e:
+        return repr(e)
+
+
+async def process_source(filename, session: ClientSession):
     result = {}
     path_split = filename.split(os.sep)
     sources_index = path_split.index("sources")
@@ -52,8 +157,9 @@ def process_source(filename):
     result['filename'] = path_split[-1]
     result['directory'] = path_split[sources_index + 1:-1]
 
-    with open(filename) as fp:
-        source = json.load(fp)
+    async with aiofiles.open(filename, mode='r') as f:
+        contents = await f.read()
+        source = json.loads(contents)
 
     result['name'] = source['properties']['name']
 
@@ -62,138 +168,50 @@ def process_source(filename):
         result['license_url'] = "No license_url set!"
     else:
         licence_url = source['properties']['license_url']
-        result['license_url'] = get_status_code(licence_url)
+        licence_url_status = await test_url(licence_url, session)
+        result['license_url'] = licence_url_status
 
     # Check privacy url
     if 'privacy_policy_url' not in source['properties']:
         result['privacy_policy_url'] = "No privacy_policy_url set!"
     else:
         privacy_policy_url = source['properties']['privacy_policy_url']
-        result['privacy_policy_url'] = get_status_code(privacy_policy_url)
+        privacy_policy_url_status = await test_url(privacy_policy_url, session)
+        result['privacy_policy_url'] = privacy_policy_url_status
 
     # Check imagery
     if source['geometry'] is not None:
-        geom = shape(source['geometry'])
-        centroid = geom.centroid
 
-        try:
-            # Check tms
-            if source['properties']['type'] == 'tms':
-                # TODO deal with {apikey}, {-y}
+        # Check tms
+        if source['properties']['type'] == 'tms':
+            result['imagery'] = await check_tms(source, session)
 
-                try:
-                    parameters = {}
-                    tms_url = source['properties']['url']
+        # check wms
+        elif source['properties']['type'] == 'wms':
+            result['imagery'] = await check_wms(source, session)
 
-                    if "switch:" in tms_url:
-                        match = re.search(r'switch:?([^}]*)', tms_url)
-                        switches = match.group(1).split(',')
-                        tms_url = tms_url.replace(match.group(0), 'switch')
-                        parameters['switch'] = switches[0]
+        # check wms_endpoint
+        elif source['properties']['type'] == 'wms_endpoint':
+            result['imagery'] = await check_wms_endpoint(source, session)
 
-                    zoom = 0
-                    if 'min_zoom' in source['properties']:
-                        zoom = source['properties']['min_zoom']
-                    parameters['zoom'] = zoom
-
-                    tile = mercantile.tile(centroid.x, centroid.y, zoom)
-                    parameters['x'] = tile.x
-                    parameters['y'] = tile.y
-
-                    if '{-y}' in tms_url:
-                        tms_url = tms_url.replace('{-y}', '{y}')
-
-                    tms_url = tms_url.format(**parameters)
-                    result['imagery'] = get_status_code(tms_url)
-                except Exception as e:
-                    result['imagery'] = str(e)
-
-            # check wms
-            elif source['properties']['type'] == 'wms':
-
-                wms_url = source['properties']['url']
-                wms_url_split = wms_url.rsplit('?', 1)
-                wms_args_list = wms_url_split[1].split("&")
-                wms_args = {}
-                for wms_arg in wms_args_list:
-                    k, v = wms_arg.split("=")
-                    wms_args[k.lower()] = v
-
-                get_capabilities_args = {'service': 'WMS',
-                                         'request': 'GetCapabilities'}
-                if 'map' in wms_args:
-                    get_capabilities_args['map'] = wms_args['map']
-
-                wms_base_url = wms_url_split[0]
-                wms_args_str = "&".join(["{}={}".format(k, v) for k, v in get_capabilities_args.items()])
-                wms_getcapabilites_url = "{}?{}".format(wms_base_url, wms_args_str)
-
-                if not 'layers' in wms_args:
-                    result['imagery'] = "WMS url contains no layers"
-                else:
-
-                    try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter("ignore")
-                            try:
-                                wms = WebMapService(wms_getcapabilites_url, version="1.3.0")
-                            except:
-                                wms = WebMapService(wms_getcapabilites_url, version="1.1.1")
-
-                        layer_arg = wms_args['layers']
-                        not_found_layers = []
-                        for layer_name in layer_arg.split(","):
-                            if not layer_name in wms.contents:
-                                not_found_layers.append(layer_name)
-                        if len(not_found_layers) > 0:
-                            result['imagery'] = "Layers {layers} could not be found under url '{url}'.".format(
-                                layers=",".join(not_found_layers),
-                                url=wms_getcapabilites_url)
-                        else:
-                            result['imagery'] = GOOD
-
-                    except Exception as e:
-                        result['imagery'] = str(e)
-
-            # check wms_endpoint
-            elif source['properties']['type'] == 'wms_endpoint':
-                # TODO assumptions
-                wms_url = source['properties']['url']
-                try:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        wms = WebMapService(wms_url)
-                        result['imagery'] = GOOD
-                except Exception as e:
-                    result['imagery'] = str(e)
-
-            # check wmts
-            elif source['properties']['type'] == 'wmts':
-                try:
-                    wmts_url = source['properties']['url']
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        wmts = WebMapTileService(wmts_url)
-                        result['imagery'] = GOOD
-                except Exception as e:
-                    result['imagery'] = str(e)
-
-        except Exception as e:
-            result['imagery'] = str(e)
+        # check wmts
+        elif source['properties']['type'] == 'wmts':
+            result['imagery'] = await check_wmts(source, session)
 
     print(result)
     return result
 
 
-def fetch(eli_path):
-    jobs = []
-    for filename in glob.glob(os.path.join(eli_path, '**', '*.geojson'), recursive=True):
-        # dirs = filename.split(os.sep)
-        # # TODO temporarily limit number of sources
-        # if 'europe' not in dirs:
-        #     continue
-        jobs.append(filename)
+async def process(eli_path):
+    headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
+    timeout = aiohttp.ClientTimeout(total=60)
+    async with ClientSession(headers=headers, timeout=timeout) as session:
+        jobs = []
+        for filename in glob.glob(os.path.join(eli_path, '**', '*.geojson'), recursive=True):
+            jobs.append(process_source(filename, session))
+        result = await asyncio.gather(*jobs)
+        return result
 
-    with multiprocessing.Pool(processes=cpus) as pool:
-        results = pool.map(process_source, jobs)
-    return results
+
+def fetch(eli_path):
+    return asyncio.run(process(eli_path=eli_path))

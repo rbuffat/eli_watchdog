@@ -9,7 +9,7 @@ jobs:
     name: Watchdog
 
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v2
 
@@ -22,14 +22,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          
+
       - name: Checkout ELI
         run: |
           git clone --depth=1 --branch=gh-pages https://github.com/osmlab/editor-layer-index.git
-          
+
       - name: Run Watchdog
         run: |
-          python watchdog.py
+          python watchdog.py editor-layer-index/sources
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.5.7

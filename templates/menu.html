@@ -15,7 +15,7 @@
           {% for country in region.countries %}
           <li class="nav-item">
             <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ country }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ country }}">
-              {{ country }}
+              {{ country|replace("_", " / ") }}
             </button>
           </li>
           {% endfor %}

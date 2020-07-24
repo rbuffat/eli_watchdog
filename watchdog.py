@@ -1,7 +1,12 @@
 import renderer
 from query import fetch
+import argparse
 
-if __name__ == "__main__":
-    eli_path = "editor-layer-index/sources"
-    results = fetch(eli_path)
-    renderer.render(results)
+parser = argparse.ArgumentParser()
+parser.add_argument("path")
+args = parser.parse_args()
+
+eli_path = args.path
+
+results = fetch(eli_path)
+renderer.render(results)
