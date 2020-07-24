@@ -12,12 +12,13 @@ import warnings
 import re
 from aiohttp import ClientSession
 
+
 GOOD = 'good'
 
 
 async def test_url(url: str, session: ClientSession, **kwargs):
     try:
-        resp = await session.request(method="GET", url=url, **kwargs)
+        resp = await session.request(method="GET", url=url, ssl=False, **kwargs)
         status_code = resp.status
         if status_code == 200:
             return GOOD
@@ -101,12 +102,10 @@ async def check_wms(source, session: ClientSession):
                     warnings.simplefilter("ignore")
                     wms = WebMapService(wms_getcapabilites_url, xml=xml, version=wmsversion)
         except Exception as e:
-            print(repr(e))
             continue
 
     if wms is None:
         return "Could not access GetCapabilities of {}".format(wms_url_split[0])
-
 
     layer_arg = wms_args['layers']
     not_found_layers = []
@@ -205,6 +204,7 @@ async def process_source(filename, session: ClientSession):
 async def process(eli_path):
     headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
     timeout = aiohttp.ClientTimeout(total=60)
+
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []
         for filename in glob.glob(os.path.join(eli_path, '**', '*.geojson'), recursive=True):
