@@ -46,9 +46,11 @@ async def check_tms(source, session: ClientSession, **kwargs):
             tms_url = tms_url.replace(match.group(0), 'switch')
             parameters['switch'] = switches[0]
 
-        zoom = 0
+        zoom = 16
         if 'min_zoom' in source['properties']:
-            zoom = source['properties']['min_zoom']
+            zoom = max(zoom, source['properties']['min_zoom'])
+        if 'max_zoom' in source['properties']:
+            zoom = min(zoom, source['properties']['max_zoom'])
         parameters['zoom'] = zoom
 
         tile = mercantile.tile(centroid.x, centroid.y, zoom)
