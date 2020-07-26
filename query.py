@@ -115,6 +115,12 @@ async def check_tms(source, session: ClientSession, **kwargs):
 
         if '{-y}' in tms_url:
             tms_url = tms_url.replace('{-y}', '{y}')
+            parameters['y'] = 2 ** parameters['zoom'] - 1 - tile.y
+        elif '{!y}' in tms_url:
+            tms_url = tms_url.replace('{!y}', '{y}')
+            parameters['y'] = 2 ** (parameters['zoom'] - 1) - 1 - tile.y
+        else:
+            parameters['y'] = tile.y
 
         tms_url = tms_url.format(**parameters)
         tms_url_status = await test_url(tms_url, session)
@@ -122,16 +128,6 @@ async def check_tms(source, session: ClientSession, **kwargs):
 
     except Exception as e:
         return create_result(ResultStatus.ERROR, repr(e))
-
-
-# async def get_getcapabilites(wms_getcapabilites_url: str, session: ClientSession, **kwargs):
-#     response = await session.request(method="GET", url=wms_getcapabilites_url)
-#     status_code = response.status
-#     if status_code == 200:
-#         xml = await response.text()
-#         xml = xml.encode('utf-8')
-#         return xml
-#     raise RuntimeError("XML could not be processed")
 
 
 async def check_wms(source, session: ClientSession):
