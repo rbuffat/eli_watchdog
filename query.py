@@ -25,6 +25,22 @@ def create_result(status, message):
 
 
 async def test_url(url: str, session: ClientSession, **kwargs):
+    """
+    Test if a url is reachable
+
+    Parameters
+    ----------
+    url:  str
+        Url to test
+    session: ClientSession
+        aiohttp ClientSession object
+    kwargs: kwargs
+
+    Returns
+    -------
+    dict:
+        Result dict created by create_result()
+    """
     try:
         resp = await session.request(method="GET", url=url, ssl=False, **kwargs)
         status_code = resp.status
@@ -42,7 +58,24 @@ async def test_url(url: str, session: ClientSession, **kwargs):
 
 
 async def check_tms(source, session: ClientSession, **kwargs):
+    """
+    Check TMS source
+
+    Parameters
+    ----------
+    source : dict
+        Source dictionary
+    session : ClientSession
+        aiohttp ClientSession object
+    kwargs
+
+    Returns
+    -------
+    dict:
+        Result dict created by create_result()
+    """
     # TODO deal with {apikey}, {-y}
+    # TODO check zoom levels
     try:
 
         geom = shape(source['geometry'])
@@ -80,6 +113,22 @@ async def check_tms(source, session: ClientSession, **kwargs):
 
 
 async def check_wms(source, session: ClientSession):
+    """
+    Check WMS source
+
+    Parameters
+    ----------
+    source : dict
+        Source dictionary
+    session : ClientSession
+        aiohttp ClientSession object
+    kwargs
+
+    Returns
+    -------
+    dict:
+        Result dict created by create_result()
+    """
     wms_url = source['properties']['url']
     wms_url_split = wms_url.rsplit('?', 1)
     wms_args_list = wms_url_split[1].split("&")
@@ -91,7 +140,7 @@ async def check_wms(source, session: ClientSession):
     if 'layers' not in wms_args:
         return create_result(ResultStatus.ERROR, "No layers specified in: {}".format(wms_url))
 
-    def get_GetCapabilitie_url(wmsversion):
+    def get_getcapabilitie_url(wmsversion):
         get_capabilities_args = {'service': 'WMS',
                                  'request': 'GetCapabilities',
                                  'version': wmsversion}
@@ -105,7 +154,7 @@ async def check_wms(source, session: ClientSession):
     wms = None
     for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
         try:
-            wms_getcapabilites_url = get_GetCapabilitie_url(wmsversion)
+            wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
             response = await session.request(method="GET", url=wms_getcapabilites_url)
             status_code = response.status
             if status_code == 200:
@@ -135,6 +184,22 @@ async def check_wms(source, session: ClientSession):
 
 
 async def check_wms_endpoint(source, session: ClientSession):
+    """
+    Check WMS Endpoint source
+
+    Parameters
+    ----------
+    source : dict
+        Source dictionary
+    session : ClientSession
+        aiohttp ClientSession object
+    kwargs
+
+    Returns
+    -------
+    dict:
+        Result dict created by create_result()
+    """
     # TODO assumptions
     wms_url = source['properties']['url']
     try:
@@ -150,6 +215,22 @@ async def check_wms_endpoint(source, session: ClientSession):
 
 
 async def check_wmts(source, session):
+    """
+    Check WMTS source
+
+    Parameters
+    ----------
+    source : dict
+        Source dictionary
+    session : ClientSession
+        aiohttp ClientSession object
+    kwargs
+
+    Returns
+    -------
+    dict:
+        Result dict created by create_result()
+    """
     try:
         wmts_url = source['properties']['url']
         with warnings.catch_warnings():
@@ -163,6 +244,22 @@ async def check_wmts(source, session):
 
 
 async def process_source(filename, session: ClientSession):
+    """
+    Process single source file
+
+    Parameters
+    ----------
+    filename : str
+        Path to source file
+    session : ClientSession
+        aiohttp ClientSession object
+
+    Returns
+    -------
+    dict:
+        Result dict
+
+    """
     result = {}
     path_split = filename.split(os.sep)
     sources_index = path_split.index("sources")
@@ -222,6 +319,13 @@ async def process_source(filename, session: ClientSession):
 
 
 async def process(eli_path):
+    """ Search for all sources files and setup of processing chain
+
+    Parameters
+    ----------
+    eli_path : str
+        Path to the 'sources' directory of the editor-layer-index
+    """
     headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
     timeout = aiohttp.ClientTimeout(total=10)
 
@@ -234,4 +338,17 @@ async def process(eli_path):
 
 
 def fetch(eli_path):
+    """ Fetch results of all sources
+
+    Parameters
+    ----------
+    eli_path : str
+        Path to the 'sources' directory of the editor-layer-index
+
+    Returns
+    -------
+    list of dict
+        A list with all results
+
+    """
     return asyncio.run(process(eli_path=eli_path))
