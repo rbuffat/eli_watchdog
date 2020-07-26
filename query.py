@@ -59,6 +59,16 @@ async def test_url(url: str, session: ClientSession, **kwargs):
         return create_result(ResultStatus.ERROR, "{} for {}".format(repr(e), url))
 
 
+@cached(ttl=60 * 5)
+async def fetch_url(url: str, session: ClientSession, **kwargs):
+    response = await session.request(method="GET", url=url)
+    status_code = response.status
+    if status_code == 200:
+        xml = await response.text()
+        return xml
+    return None
+
+
 async def check_tms(source, session: ClientSession, **kwargs):
     """
     Check TMS source
@@ -114,15 +124,14 @@ async def check_tms(source, session: ClientSession, **kwargs):
         return create_result(ResultStatus.ERROR, repr(e))
 
 
-@cached(ttl=60 * 5)
-async def get_getcapabilites(wms_getcapabilites_url: str, session: ClientSession, **kwargs):
-    response = await session.request(method="GET", url=wms_getcapabilites_url)
-    status_code = response.status
-    if status_code == 200:
-        xml = await response.text()
-        xml = xml.encode('utf-8')
-        return xml
-    raise RuntimeError("XML could not be processed")
+# async def get_getcapabilites(wms_getcapabilites_url: str, session: ClientSession, **kwargs):
+#     response = await session.request(method="GET", url=wms_getcapabilites_url)
+#     status_code = response.status
+#     if status_code == 200:
+#         xml = await response.text()
+#         xml = xml.encode('utf-8')
+#         return xml
+#     raise RuntimeError("XML could not be processed")
 
 
 async def check_wms(source, session: ClientSession):
@@ -168,7 +177,8 @@ async def check_wms(source, session: ClientSession):
     for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
-            xml = await get_getcapabilites(wms_getcapabilites_url, session)
+            xml = await fetch_url(wms_getcapabilites_url, session)
+            xml = xml.encode('utf-8')
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 wms = WebMapService(wms_getcapabilites_url, xml=xml, version=wmsversion)
@@ -317,11 +327,11 @@ async def process_source(filename, session: ClientSession):
         elif source['properties']['type'] == 'wmts':
             result['imagery'] = await check_wmts(source, session)
 
-    if result['license_url'] is None:
+    if 'license_url' not in result:
         result['license_url'] = create_result(ResultStatus.WARNING, "Not checked")
-    if result['privacy_policy_url'] is None:
+    if 'privacy_policy_url' not in result:
         result['privacy_policy_url'] = create_result(ResultStatus.WARNING, "Not checked")
-    if result['imagery'] is None:
+    if 'imagery' not in result:
         result['imagery'] = create_result(ResultStatus.WARNING, "Not checked")
 
     return result
@@ -336,7 +346,7 @@ async def process(eli_path):
         Path to the 'sources' directory of the editor-layer-index
     """
     headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
-    timeout = aiohttp.ClientTimeout(total=30)
+    timeout = aiohttp.ClientTimeout(total=120)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []
