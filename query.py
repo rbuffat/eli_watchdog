@@ -13,21 +13,32 @@ import re
 from aiohttp import ClientSession
 
 
-GOOD = 'good'
+class ResultStatus:
+    GOOD = "good"
+    WARNING = "warning"
+    ERROR = "error"
+
+
+def create_result(status, message):
+    return {'status': status,
+            'message': message}
 
 
 async def test_url(url: str, session: ClientSession, **kwargs):
     try:
         resp = await session.request(method="GET", url=url, ssl=False, **kwargs)
         status_code = resp.status
+
         if status_code == 200:
-            return GOOD
+            status = ResultStatus.GOOD
         else:
-            return "HTTP Code {} for {}".format(status_code, url)
+            status = ResultStatus.ERROR
+        message = "HTTP Code {} for {}".format(status_code, url)
+        return create_result(status, message)
     except asyncio.TimeoutError:
-        return "Timeout for : {}".format(url)
+        return create_result(ResultStatus.ERROR, "Timeout for : {}".format(url))
     except Exception as e:
-        return repr(e)
+        return create_result(ResultStatus.ERROR, "{} for {}".format(repr(e), url))
 
 
 async def check_tms(source, session: ClientSession, **kwargs):
@@ -65,7 +76,7 @@ async def check_tms(source, session: ClientSession, **kwargs):
         return tms_url_status
 
     except Exception as e:
-        return repr(e)
+        return create_result(ResultStatus.ERROR, repr(e))
 
 
 async def check_wms(source, session: ClientSession):
@@ -78,7 +89,7 @@ async def check_wms(source, session: ClientSession):
         wms_args[k.lower()] = v
 
     if 'layers' not in wms_args:
-        return "No layers specified in: {}".format(wms_url)
+        return create_result(ResultStatus.ERROR, "No layers specified in: {}".format(wms_url))
 
     def get_GetCapabilitie_url(wmsversion):
         get_capabilities_args = {'service': 'WMS',
@@ -107,19 +118,20 @@ async def check_wms(source, session: ClientSession):
             continue
 
     if wms is None:
-        return "Could not access GetCapabilities of {}".format(wms_url_split[0])
+        return create_result(ResultStatus.ERROR, "Could not access GetCapabilities of {}".format(wms_url_split[0]))
 
+    # TODO check styles
     layer_arg = wms_args['layers']
     not_found_layers = []
     for layer_name in layer_arg.split(","):
-        if not layer_name in wms.contents:
+        if layer_name not in wms.contents:
             not_found_layers.append(layer_name)
     if len(not_found_layers) > 0:
-        return "Layers {layers} could not be found under url '{url}'.".format(
+        return create_result(ResultStatus.ERROR, "Layers {layers} could not be found under url '{url}'.".format(
             layers=",".join(not_found_layers),
-            url=wms_getcapabilites_url)
+            url=wms_getcapabilites_url))
     else:
-        return GOOD
+        return create_result(ResultStatus.GOOD, "Found layers")
 
 
 async def check_wms_endpoint(source, session: ClientSession):
@@ -132,9 +144,9 @@ async def check_wms_endpoint(source, session: ClientSession):
             async with session.get(wms_url) as response:
                 xml = await response.text()
             wms = WebMapService(wms_url, xml=xml.encode('utf-8'))
-            return GOOD
+            return create_result(ResultStatus.GOOD, "")
     except Exception as e:
-        return repr(e)
+        return create_result(ResultStatus.ERROR, repr(e))
 
 
 async def check_wmts(source, session):
@@ -145,9 +157,9 @@ async def check_wmts(source, session):
             async with session.get(wmts_url) as response:
                 xml = await response.text()
                 wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
-            return GOOD
+            return create_result(ResultStatus.GOOD, "")
     except Exception as e:
-        return repr(e)
+        return create_result(ResultStatus.ERROR, repr(e))
 
 
 async def process_source(filename, session: ClientSession):
@@ -166,7 +178,7 @@ async def process_source(filename, session: ClientSession):
 
     # Check licence url
     if 'license_url' not in source['properties']:
-        result['license_url'] = "No license_url set!"
+        result['license_url'] = create_result(ResultStatus.ERROR, "No license_url set!")
     else:
         licence_url = source['properties']['license_url']
         licence_url_status = await test_url(licence_url, session)
@@ -174,7 +186,7 @@ async def process_source(filename, session: ClientSession):
 
     # Check privacy url
     if 'privacy_policy_url' not in source['properties']:
-        result['privacy_policy_url'] = "No privacy_policy_url set!"
+        result['privacy_policy_url'] = create_result(ResultStatus.ERROR, "No privacy_policy_url set!")
     else:
         privacy_policy_url = source['properties']['privacy_policy_url']
         privacy_policy_url_status = await test_url(privacy_policy_url, session)
@@ -199,13 +211,19 @@ async def process_source(filename, session: ClientSession):
         elif source['properties']['type'] == 'wmts':
             result['imagery'] = await check_wmts(source, session)
 
-    print(result)
+    if result['license_url'] is None:
+        result['license_url'] = create_result(ResultStatus.WARNING, "Not checked")
+    if result['privacy_policy_url'] is None:
+        result['privacy_policy_url'] = create_result(ResultStatus.WARNING, "Not checked")
+    if result['imagery'] is None:
+        result['imagery'] = create_result(ResultStatus.WARNING, "Not checked")
+
     return result
 
 
 async def process(eli_path):
     headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
-    timeout = aiohttp.ClientTimeout(total=60)
+    timeout = aiohttp.ClientTimeout(total=10)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []

@@ -20,29 +20,29 @@
                 <tr>
                   <td><a href="{{ source.url }}">{{ source.name }}</a></td>
 
-                  {% if source.imagery == 'good' %}
+                  {% if source.imagery.status == 'good' %}
                   <td class="table-success">Good</td>
-                  {% elif source.imagery == 'Not available'%}
+                  {% elif source.imagery.status == 'warning'%}
                   <td class="table-warning">Not checked</td>
                   {% else %}
-                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery }}">{{ source.imagery[:50] }}</a></td>
+                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message }}">{{ source.imagery.message[:50] }}</a></td>
                   {% endif %}
                   
-                  {% if source.license_url == 'good' %}
+                  {% if source.license_url.status == 'good' %}
                   <td class="table-success">Good</td>
-                  {% elif source.license_url == 'Not available'%}
-                  <td class="table-warning">Not checked</td>
+                  {% elif source.license_url.status == 'warning'%}
+                  <td class="table-warning"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{ source.license_url.message[:50] }}</a></td>
                   {% else %}
-                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url }}">{{ source.license_url[:50] }}</a></td>
+                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{ source.license_url.message[:50] }}</a></td>
                   {% endif %}
                   
                   
-                  {% if source.privacy_policy_url == 'good' %}
+                  {% if source.privacy_policy_url.status == 'good' %}
                   <td class="table-success">Good</td>
-                  {% elif source.privacy_policy_url == 'Not available'%}
-                  <td class="table-warning">Not checked</td>
+                  {% elif source.privacy_policy_url.status == 'warning'%}
+                  <td class="table-warning"><a href="#" data-toggle="tooltip" title="{{ source.privacy_policy_url.message }}">{{ source.privacy_policy_url.message[:50] }}</a></td>
                   {% else %}
-                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.privacy_policy_url }}">{{ source.privacy_policy_url[:50] }}</a></td>
+                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.privacy_policy_url.message }}">{{ source.privacy_policy_url.message[:50] }}</a></td>
                   {% endif %}
                   
                 </tr>
