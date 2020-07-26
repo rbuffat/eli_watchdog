@@ -4,13 +4,14 @@ import json
 import os
 import aiofiles
 import aiohttp
-from shapely.geometry import shape, Point
+from shapely.geometry import shape
 import mercantile
 from owslib.wms import WebMapService
 from owslib.wmts import WebMapTileService
 import warnings
 import re
 from aiohttp import ClientSession
+from aiocache import cached
 
 
 class ResultStatus:
@@ -24,6 +25,7 @@ def create_result(status, message):
             'message': message}
 
 
+@cached(ttl=60 * 5)
 async def test_url(url: str, session: ClientSession, **kwargs):
     """
     Test if a url is reachable
@@ -112,6 +114,17 @@ async def check_tms(source, session: ClientSession, **kwargs):
         return create_result(ResultStatus.ERROR, repr(e))
 
 
+@cached(ttl=60 * 5)
+async def get_getcapabilites(wms_getcapabilites_url: str, session: ClientSession, **kwargs):
+    response = await session.request(method="GET", url=wms_getcapabilites_url)
+    status_code = response.status
+    if status_code == 200:
+        xml = await response.text()
+        xml = xml.encode('utf-8')
+        return xml
+    raise RuntimeError("XML could not be processed")
+
+
 async def check_wms(source, session: ClientSession):
     """
     Check WMS source
@@ -155,14 +168,10 @@ async def check_wms(source, session: ClientSession):
     for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
-            response = await session.request(method="GET", url=wms_getcapabilites_url)
-            status_code = response.status
-            if status_code == 200:
-                xml = await response.text()
-                xml = xml.encode('utf-8')
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    wms = WebMapService(wms_getcapabilites_url, xml=xml, version=wmsversion)
+            xml = await get_getcapabilites(wms_getcapabilites_url, session)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                wms = WebMapService(wms_getcapabilites_url, xml=xml, version=wmsversion)
         except Exception as e:
             continue
 
@@ -327,7 +336,7 @@ async def process(eli_path):
         Path to the 'sources' directory of the editor-layer-index
     """
     headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
-    timeout = aiohttp.ClientTimeout(total=10)
+    timeout = aiohttp.ClientTimeout(total=30)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []
