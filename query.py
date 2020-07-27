@@ -343,7 +343,7 @@ async def process(eli_path):
         Path to the 'sources' directory of the editor-layer-index
     """
     headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
-    timeout = aiohttp.ClientTimeout(total=120)
+    timeout = aiohttp.ClientTimeout(total=300)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []
