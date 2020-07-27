@@ -10,6 +10,7 @@
               <thead>
                 <tr>
                   <th>Source</th>
+                  <th>Type</th>
                   <th>Imagery</th>
                   <th>License URL</th>
                   <th>Privacy URL</th>
@@ -19,7 +20,7 @@
               {% for source in country.sources | sort(attribute='name') %}
                 <tr>
                   <td><a href="{{ source.url }}">{{ source.name }}</a></td>
-
+                  <td>{{ source.type }}</td>
                   {% if source.imagery.status == 'good' %}
                   <td class="table-success">Good</td>
                   {% elif source.imagery.status == 'warning'%}

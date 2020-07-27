@@ -59,7 +59,8 @@ def render_countries(data):
             'url': github_url,
             'imagery': transform_result(d['imagery']),
             'license_url': transform_result(d['license_url']),
-            'privacy_policy_url': transform_result(d['privacy_policy_url'])
+            'privacy_policy_url': transform_result(d['privacy_policy_url']),
+            'type': d['type']
         })
     countries = [{'name': name, 'region': region, 'sources': collect[(region, name)]} for region, name in collect]
 

@@ -287,6 +287,7 @@ async def process_source(filename, session: ClientSession):
         source = json.loads(contents)
 
     result['name'] = source['properties']['name']
+    result['type'] = source['properties']['type']
 
     # Check licence url
     if 'license_url' not in source['properties']:
