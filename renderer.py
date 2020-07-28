@@ -38,12 +38,62 @@ def render_menu(data):
     return template.render(regions=regions)
 
 
+def render_overview(data):
+    good = defaultdict(lambda: defaultdict(int))
+    total = defaultdict(int)
+    region2key = {}
+
+    for d in data:
+        region = " / ".join(d['directory'])
+        region_key = get_country_key(d)
+        region2key[region] = region_key
+
+        total[region] += 1
+
+        if d['imagery']['status'] == 'good':
+            good['imagery'][region] += 1
+
+        if d['license_url']['status'] == 'good':
+            good['license_url'][region] += 1
+
+        if d['privacy_policy_url']['status'] == 'good':
+            good['privacy_policy_url'][region] += 1
+
+    def calc(cat, region_key):
+        count = good[cat][region_key]
+        tot = total[region_key]
+        percent = count / tot * 100.0
+        if percent == 100:
+            status = "success"
+        elif 90 < percent < 100:
+            status = "warning"
+        else:
+            status = "danger"
+        return {
+            'percent': "{}% ({} / {})".format(round(percent), count, tot),
+            'status': status
+        }
+
+    def get_regionid(region):
+        return "{}-{}".format(region2key[region]['region'],
+                              region2key[region]['country'])
+
+    regions = [{'regionid': get_regionid(region),
+                'name': region,
+                'imagery': calc('imagery', region),
+                'license_url': calc('license_url', region),
+                'privacy_policy_url': calc('privacy_policy_url', region),
+                } for region in total]
+
+    template = env.get_template('overview.html')
+    return template.render(regions=regions)
+
+
 def render_countries(data):
     template = env.get_template('country_sources.html')
 
     collect = defaultdict(list)
     for d in data:
-
         country_key = get_country_key(d)
 
         github_url = 'https://github.com/osmlab/editor-layer-index/tree/gh-pages/sources/{}/{}'.format(
@@ -70,6 +120,7 @@ def render_countries(data):
 def render(data):
     data = {'menu': render_menu(data),
             'countries': render_countries(data),
+            'overview': render_overview(data)
             }
 
     template = env.get_template('main.html')

@@ -1,58 +1,62 @@
-      <div id="sources">
-          
-      {% for country in countries %}
-          
-        <div class="collapse" id="collapse-{{ country.region }}-{{ country.name }}" data-parent="#sources">
+{% for country in countries %}
 
-          <h2>{{ country.name|replace("_", " / ") }}</h2>
-          <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th>Source</th>
-                  <th>Type</th>
-                  <th>Imagery</th>
-                  <th>License URL</th>
-                  <th>Privacy URL</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for source in country.sources | sort(attribute='name') %}
-                <tr>
-                  <td><a href="{{ source.url }}">{{ source.name }}</a></td>
-                  <td>{{ source.type }}</td>
-                  {% if source.imagery.status == 'good' %}
-                  <td class="table-success">Good</td>
-                  {% elif source.imagery.status == 'warning'%}
-                  <td class="table-warning">Not checked</td>
-                  {% else %}
-                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message }}">{{ source.imagery.message[:50] }}</a></td>
-                  {% endif %}
-                  
-                  {% if source.license_url.status == 'good' %}
-                  <td class="table-success">Good</td>
-                  {% elif source.license_url.status == 'warning'%}
-                  <td class="table-warning"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{ source.license_url.message[:50] }}</a></td>
-                  {% else %}
-                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{ source.license_url.message[:50] }}</a></td>
-                  {% endif %}
-                  
-                  
-                  {% if source.privacy_policy_url.status == 'good' %}
-                  <td class="table-success">Good</td>
-                  {% elif source.privacy_policy_url.status == 'warning'%}
-                  <td class="table-warning"><a href="#" data-toggle="tooltip" title="{{ source.privacy_policy_url.message }}">{{ source.privacy_policy_url.message[:50] }}</a></td>
-                  {% else %}
-                  <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.privacy_policy_url.message }}">{{ source.privacy_policy_url.message[:50] }}</a></td>
-                  {% endif %}
-                  
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+<div class="collapse" id="collapse-{{ country.region }}-{{ country.name }}" data-parent="#sources">
 
-      {% endfor %}
-          
-      </div>
+    <h2>{{ country.name|replace("_", " / ") }}</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Type</th>
+                    <th>Imagery</th>
+                    <th>License URL</th>
+                    <th>Privacy URL</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for source in country.sources | sort(attribute='name') %}
+                <tr>
+                    <td><a href="{{ source.url }}">{{ source.name }}</a></td>
+                    <td>{{ source.type }}</td>
+                    {% if source.imagery.status == 'good' %}
+                    <td class="table-success">Good</td>
+                    {% elif source.imagery.status == 'warning'%}
+                    <td class="table-warning">Not checked</td>
+                    {% else %}
+                    <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message }}">{{
+                        source.imagery.message[:50] }}</a></td>
+                    {% endif %}
+    
+                    {% if source.license_url.status == 'good' %}
+                    <td class="table-success">Good</td>
+                    {% elif source.license_url.status == 'warning'%}
+                    <td class="table-warning"><a href="#" data-toggle="tooltip"
+                                                 title="{{ source.license_url.message }}">{{
+                        source.license_url.message[:50] }}</a></td>
+                    {% else %}
+                    <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{
+                        source.license_url.message[:50] }}</a></td>
+                    {% endif %}
+    
+    
+                    {% if source.privacy_policy_url.status == 'good' %}
+                    <td class="table-success">Good</td>
+                    {% elif source.privacy_policy_url.status == 'warning'%}
+                    <td class="table-warning"><a href="#" data-toggle="tooltip"
+                                                 title="{{ source.privacy_policy_url.message }}">{{
+                        source.privacy_policy_url.message[:50] }}</a></td>
+                    {% else %}
+                    <td class="table-danger"><a href="#" data-toggle="tooltip"
+                                                title="{{ source.privacy_policy_url.message }}">{{
+                        source.privacy_policy_url.message[:50] }}</a></td>
+                    {% endif %}
+    
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endfor %}

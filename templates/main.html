@@ -1,7 +1,6 @@
- 
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -9,7 +8,7 @@
 
 
     <!-- Bootstrap core CSS -->
-<link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
 
     <style>
       .bd-placeholder-img {
@@ -26,43 +25,61 @@
           font-size: 3.5rem;
         }
       }
+    
+    
     </style>
     <!-- Custom styles for this template -->
     <link href="dashboard.css" rel="stylesheet">
-  </head>
-  <body>
-    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="https://github.com/rbuffat/eli_watchdog">ELI Watchdog</a>
-  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-      
-  <ul class="navbar-nav px-3">
-    <li class="nav-item text-nowrap">
-      <a class="nav-link" href="#">Last updated: {{ now }} UTC</a>
-    </li>
-  </ul>
-      
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="https://github.com/rbuffat/eli_watchdog">ELI Watchdog</a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+            data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#">Last updated: {{ now }} UTC</a>
+        </li>
+    </ul>
+
 </nav>
 
 <div class="container-fluid">
-  <div class="row">
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-      <div class="sidebar-sticky pt-3">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="sidebar-sticky pt-3">
 
-        {{ data.menu }}
-          
-      </div>
-    </nav>
+                {{ data.menu }}
 
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-      
-      {{ data.countries }}
+            </div>
+        </nav>
 
-    </main>
-  </div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+
+            <div class="alert alert-danger" role="alert">
+                This tool is still in early development. Indicated errors may result from incomplete tests and not from
+                broken sources.
+                Please test sources first with your favorite OSM editor. Bugs or other issues can be opened in the
+                <a href="https://github.com/rbuffat/eli_watchdog/issues">projects bug tracker</a>.
+            </div>
+
+            <div id="sources">
+
+                {{ data.overview}}
+                
+                {{ data.countries }}
+
+            </div>
+
+        </main>
+    </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="js/bootstrap.bundle.js"></script>
-  </body>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="js/bootstrap.bundle.js"></script>
+</body>
 </html>

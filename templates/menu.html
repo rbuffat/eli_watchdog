@@ -1,5 +1,16 @@
 <div class="accordion" id="regions">
+  <div class="card">
+    <div class="card-header" id="heading-overview}">
+      <h2 class="mb-0">
+        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-overview" aria-expanded="true" aria-controls="collapse-overview">
+          Overview
+        </button>
+      </h2>
+    </div>
+  </div>
+  
   {% for region in regions %}
+  {% if region.countries|length > 1 %}
   <div class="card">
     <div class="card-header" id="heading-{{ region.name }}">
       <h2 class="mb-0">
@@ -23,5 +34,16 @@
       </div>
     </div>
   </div>
+  {% else %}
+    <div class="card">
+    <div class="card-header" id="heading-{{ region.name }}">
+      <h2 class="mb-0">
+        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ region.name }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ region.name }}">
+          {{ region.name }}
+        </button>
+      </h2>
+    </div>
+  </div>
+  {% endif %}
   {% endfor %}
 </div>

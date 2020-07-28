@@ -1,0 +1,33 @@
+<div class="collapse show" id="collapse-overview" data-parent="#sources">
+    <h2>Overview</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Region</th>
+                    <th>Imagery</th>
+                    <th>License URL</th>
+                    <th>Privacy URL</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for region in regions | sort(attribute='name') %}
+            <tr>
+                <!--                    <td>{{ region.name }}</td>-->
+                <td>
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapse-{{ region.regionid }}" aria-expanded="true"
+                            aria-controls="collapse-{{ region.regionid }}-{{ country }}">
+                        {{ region.name }}
+                    </button>
+                </td>
+                <td class="table-{{ region.imagery.status }}">{{ region.imagery.percent }}</td>
+                <td class="table-{{ region.license_url.status }}">{{ region.license_url.percent }}</td>
+                <td class="table-{{ region.privacy_policy_url.status }}">{{ region.privacy_policy_url.percent }}</td>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
