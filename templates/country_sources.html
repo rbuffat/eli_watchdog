@@ -22,7 +22,7 @@
                     {% if source.imagery.status == 'good' %}
                     <td class="table-success">Good</td>
                     {% elif source.imagery.status == 'warning'%}
-                    <td class="table-warning">Not checked</td>
+                    <td class="table-warning">{{ source.imagery.message }}</td>
                     {% else %}
                     <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message }}">{{
                         source.imagery.message[:50] }}</a></td>

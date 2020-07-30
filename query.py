@@ -1,9 +1,8 @@
 import asyncio
+import datetime
 import glob
 import json
 import os
-from collections import defaultdict
-
 import aiofiles
 import aiohttp
 from shapely.geometry import shape
@@ -13,7 +12,6 @@ from owslib.wmts import WebMapTileService
 import warnings
 import re
 from aiohttp import ClientSession
-from aiocache import cached
 from urllib.parse import urlparse
 
 
@@ -28,38 +26,45 @@ def create_result(status, message):
             'message': message}
 
 
-visited_domains = defaultdict(int)
-delay_factor = 0.5
-
-
 response_cache = {}
 domain_locks = {}
 domain_lock = asyncio.Lock()
 
 
-async def get_url(url: str, session: ClientSession):
+async def get_url(url: str, session: ClientSession, with_text=False):
     """ Ensure that only one request is sent to a domain at one point in time and that the same url is not
     queried mor than once.
     """
     o = urlparse(url)
+    if len(o.netloc) == 0:
+        return create_result(ResultStatus.ERROR, "Could not parse: {}".format(url))
+
     async with domain_lock:
         if o.netloc not in domain_locks:
             domain_locks[o.netloc] = asyncio.Lock()
+        lock = domain_locks[o.netloc]
 
-    async with domain_locks[o.netloc]:
+    async with lock:
         if url not in response_cache:
             try:
                 print("GET {}".format(url))
-                response = await session.request(method="GET", url=url, ssl=False)
-                response_cache[url] = response
+                async with session.request(method="GET", url=url, ssl=False) as response:
+                    status = response.status
+                    if with_text:
+                        text = await response.text()
+                        response_cache[url] = (status, text)
+                    else:
+                        response_cache[url] = (status, None)
             except asyncio.TimeoutError:
-                response_cache[url] = create_result(ResultStatus.ERROR, "Timeout for : {}".format(url))
+                print("Timeout for: {}".format(url))
+                response_cache[url] = create_result(ResultStatus.ERROR, "Timeout for: {}".format(url))
             except Exception as e:
+                print("Error for: {} ({})".format(url, str(e)))
                 response_cache[url] = create_result(ResultStatus.ERROR, "{} for {}".format(repr(e), url))
         else:
             print("Cached {}".format(url))
 
-    return response_cache[url]
+        return response_cache[url]
 
 
 async def test_url(url: str, session: ClientSession, **kwargs):
@@ -83,7 +88,7 @@ async def test_url(url: str, session: ClientSession, **kwargs):
     if isinstance(resp, dict):
         return resp
     else:
-        status_code = resp.status
+        status_code = resp[0]
         if status_code == 200:
             status = ResultStatus.GOOD
         else:
@@ -109,13 +114,12 @@ async def check_tms(source, session: ClientSession, **kwargs):
     dict:
         Result dict created by create_result()
     """
-    # TODO deal with {apikey}, {-y}
+    # TODO deal with {apikey}
     # TODO check zoom levels
     try:
-
         geom = shape(source['geometry'])
         centroid = geom.centroid
-
+    
         tms_url = source['properties']['url']
         parameters = {}
 
@@ -196,16 +200,13 @@ async def check_wms(source, session: ClientSession):
     for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
-
-            response = await get_url(wms_getcapabilites_url, session)
+            response = await get_url(wms_getcapabilites_url, session, with_text=True)
             if isinstance(response, dict):
                 continue
-
-            xml = await response.text()
-            xml = xml.encode('utf-8')
+            xml = response[1]
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                wms = WebMapService(wms_getcapabilites_url, xml=xml, version=wmsversion)
+                wms = WebMapService(wms_getcapabilites_url, xml=xml.encode('utf-8'), version=wmsversion)
         except Exception as e:
             continue
 
@@ -249,8 +250,10 @@ async def check_wms_endpoint(source, session: ClientSession):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            async with session.get(wms_url) as response:
-                xml = await response.text()
+            response = await get_url(wms_url, session, with_text=True)
+            if isinstance(response, dict):
+                return response
+            xml = response[1]
             wms = WebMapService(wms_url, xml=xml.encode('utf-8'))
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
@@ -278,9 +281,11 @@ async def check_wmts(source, session):
         wmts_url = source['properties']['url']
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            async with session.get(wmts_url) as response:
-                xml = await response.text()
-                wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
+            response = await get_url(wmts_url, session, with_text=True)
+            if isinstance(response, dict):
+                return response
+            xml = response[1]
+            wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
         return create_result(ResultStatus.ERROR, repr(e))
@@ -336,21 +341,29 @@ async def process_source(filename, session: ClientSession):
     # Check imagery
     if source['geometry'] is not None:
 
-        # Check tms
-        if source['properties']['type'] == 'tms':
-            result['imagery'] = await check_tms(source, session)
+        # Check imagery only for recent imagery
+        if 'end_date' in source['properties']:
+            age = datetime.date.today().year - int(source['properties']['end_date'].split("-")[0])
+            if age > 20:
+                result['imagery'] = create_result(ResultStatus.WARNING,
+                                                  "Age {}".format(age))
+        if not 'imagery' in result:
+            # Check tms
+            if source['properties']['type'] == 'tms':
+                result['imagery'] = await check_tms(source, session)
 
-        # check wms
-        elif source['properties']['type'] == 'wms':
-            result['imagery'] = await check_wms(source, session)
+            # check wms
+            elif source['properties']['type'] == 'wms':
+                # result['imagery'] = create_result(ResultStatus.WARNING, "disabled")
+                result['imagery'] = await check_wms(source, session)
 
-        # check wms_endpoint
-        elif source['properties']['type'] == 'wms_endpoint':
-            result['imagery'] = await check_wms_endpoint(source, session)
+            # check wms_endpoint
+            elif source['properties']['type'] == 'wms_endpoint':
+                result['imagery'] = await check_wms_endpoint(source, session)
 
-        # check wmts
-        elif source['properties']['type'] == 'wmts':
-            result['imagery'] = await check_wmts(source, session)
+            # check wmts
+            elif source['properties']['type'] == 'wmts':
+                result['imagery'] = await check_wmts(source, session)
 
     if 'license_url' not in result:
         result['license_url'] = create_result(ResultStatus.WARNING, "Not checked")
@@ -370,7 +383,8 @@ async def process(eli_path):
     eli_path : str
         Path to the 'sources' directory of the editor-layer-index
     """
-    headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog https://github.com/rbuffat/eli_watchdog )'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog https://github.com/rbuffat/eli_watchdog )'}
     timeout = aiohttp.ClientTimeout(total=300)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
