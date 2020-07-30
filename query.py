@@ -346,7 +346,7 @@ async def process_source(filename, session: ClientSession):
             age = datetime.date.today().year - int(source['properties']['end_date'].split("-")[0])
             if age > 20:
                 result['imagery'] = create_result(ResultStatus.WARNING,
-                                                  "Age {}".format(age))
+                                                  "Not checked due to age: {} years".format(age))
         if not 'imagery' in result:
             # Check tms
             if source['properties']['type'] == 'tms':
