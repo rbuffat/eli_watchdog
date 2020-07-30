@@ -10,7 +10,7 @@
   </div>
   
   {% for region in regions %}
-  {% if region.countries|length > 1 %}
+  {% if region.countries|length > 0 %}
   <div class="card">
     <div class="card-header" id="heading-{{ region.name }}">
       <h2 class="mb-0">
@@ -25,8 +25,8 @@
         <ul class="nav flex-column">
           {% for country in region.countries %}
           <li class="nav-item">
-            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ country }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ country }}">
-              {{ country|replace("_", " / ") }}
+            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ country.id }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ country.id }}">
+              {{ country.path }}
             </button>
           </li>
           {% endfor %}

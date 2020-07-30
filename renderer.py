@@ -21,20 +21,27 @@ def get_country_key(d):
 
 
 def render_menu(data):
-    template = env.get_template('menu.html')
 
     r = defaultdict(set)
     for d in data:
         country_key = get_country_key(d)
         r[country_key['region']].add(country_key['country'])
 
+    def country_path(region, country):
+        if region == country:
+            return region
+        else:
+            return " / ".join([region] + country.split("_"))
+
     regions = []
     for region in sorted(r):
+        countries = [{'id': country, 'path': country_path(region, country)} for country in r[region]]
         regions.append({
             'name': region,
-            'countries': sorted(r[region])
+            'countries': sorted(countries, key=lambda country: country['path'])
         })
 
+    template = env.get_template('menu.html')
     return template.render(regions=regions)
 
 
@@ -104,7 +111,7 @@ def render_countries(data):
             result['message'] = html.escape(result['message'])
             return result
 
-        collect[(country_key['region'], country_key['country'])].append({
+        collect[(country_key['region'], country_key['country'], " / ".join(d['directory']))].append({
             'name': d.get('name', 'Not available'),
             'url': github_url,
             'imagery': transform_result(d['imagery']),
@@ -112,7 +119,10 @@ def render_countries(data):
             'privacy_policy_url': transform_result(d['privacy_policy_url']),
             'type': d['type']
         })
-    countries = [{'name': name, 'region': region, 'sources': collect[(region, name)]} for region, name in collect]
+    countries = [{'name': name,
+                  'region': region,
+                  'directory': directory,
+                  'sources': collect[(region, name, directory)]} for region, name, directory in collect]
 
     return template.render(countries=countries)
 
