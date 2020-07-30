@@ -2,6 +2,8 @@ import asyncio
 import glob
 import json
 import os
+from collections import defaultdict
+
 import aiofiles
 import aiohttp
 from shapely.geometry import shape
@@ -12,6 +14,7 @@ import warnings
 import re
 from aiohttp import ClientSession
 from aiocache import cached
+from urllib.parse import urlparse
 
 
 class ResultStatus:
@@ -25,7 +28,40 @@ def create_result(status, message):
             'message': message}
 
 
-@cached(ttl=60 * 5)
+visited_domains = defaultdict(int)
+delay_factor = 0.5
+
+
+response_cache = {}
+domain_locks = {}
+domain_lock = asyncio.Lock()
+
+
+async def get_url(url: str, session: ClientSession):
+    """ Ensure that only one request is sent to a domain at one point in time and that the same url is not
+    queried mor than once.
+    """
+    o = urlparse(url)
+    async with domain_lock:
+        if o.netloc not in domain_locks:
+            domain_locks[o.netloc] = asyncio.Lock()
+
+    async with domain_locks[o.netloc]:
+        if url not in response_cache:
+            try:
+                print("GET {}".format(url))
+                response = await session.request(method="GET", url=url, ssl=False)
+                response_cache[url] = response
+            except asyncio.TimeoutError:
+                response_cache[url] = create_result(ResultStatus.ERROR, "Timeout for : {}".format(url))
+            except Exception as e:
+                response_cache[url] = create_result(ResultStatus.ERROR, "{} for {}".format(repr(e), url))
+        else:
+            print("Cached {}".format(url))
+
+    return response_cache[url]
+
+
 async def test_url(url: str, session: ClientSession, **kwargs):
     """
     Test if a url is reachable
@@ -43,30 +79,17 @@ async def test_url(url: str, session: ClientSession, **kwargs):
     dict:
         Result dict created by create_result()
     """
-    try:
-        resp = await session.request(method="GET", url=url, ssl=False, **kwargs)
+    resp = await get_url(url, session)
+    if isinstance(resp, dict):
+        return resp
+    else:
         status_code = resp.status
-
         if status_code == 200:
             status = ResultStatus.GOOD
         else:
             status = ResultStatus.ERROR
         message = "HTTP Code {} for {}".format(status_code, url)
         return create_result(status, message)
-    except asyncio.TimeoutError:
-        return create_result(ResultStatus.ERROR, "Timeout for : {}".format(url))
-    except Exception as e:
-        return create_result(ResultStatus.ERROR, "{} for {}".format(repr(e), url))
-
-
-@cached(ttl=60 * 5)
-async def fetch_url(url: str, session: ClientSession, **kwargs):
-    response = await session.request(method="GET", url=url)
-    status_code = response.status
-    if status_code == 200:
-        xml = await response.text()
-        return xml
-    return None
 
 
 async def check_tms(source, session: ClientSession, **kwargs):
@@ -173,7 +196,12 @@ async def check_wms(source, session: ClientSession):
     for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
-            xml = await fetch_url(wms_getcapabilites_url, session)
+
+            response = await get_url(wms_getcapabilites_url, session)
+            if isinstance(response, dict):
+                continue
+
+            xml = await response.text()
             xml = xml.encode('utf-8')
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
@@ -342,7 +370,7 @@ async def process(eli_path):
     eli_path : str
         Path to the 'sources' directory of the editor-layer-index
     """
-    headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog)'}
+    headers = {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog https://github.com/rbuffat/eli_watchdog )'}
     timeout = aiohttp.ClientTimeout(total=300)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
