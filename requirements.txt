@@ -4,5 +4,4 @@ owslib==0.20.0
 jinja2==2.11.2
 aiofiles==0.5.0
 aiohttp[speedups]==3.6.2
-aiocache==0.11.1
-ujson==3.0.0
+
