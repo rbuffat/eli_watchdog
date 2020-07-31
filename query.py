@@ -170,9 +170,9 @@ async def check_tms(source, session: ClientSession, **kwargs):
         Result dict created by create_result()
     """
     # TODO deal with {apikey}
-    # TODO check zoom levels
     try:
         geom = shape(source['geometry'])
+        # TODO multipolygons and holes!
         centroid = geom.centroid
 
         tms_url = source['properties']['url']
@@ -184,29 +184,52 @@ async def check_tms(source, session: ClientSession, **kwargs):
             tms_url = tms_url.replace(match.group(0), 'switch')
             parameters['switch'] = switches[0]
 
-        zoom = 16
+        min_zoom = 0
+        max_zoom = 22
+
         if 'min_zoom' in source['properties']:
-            zoom = max(zoom, source['properties']['min_zoom'])
+            min_zoom = int(source['properties']['min_zoom'])
         if 'max_zoom' in source['properties']:
-            zoom = min(zoom, source['properties']['max_zoom'])
-        parameters['zoom'] = zoom
+            max_zoom = int(source['properties']['max_zoom'])
 
-        tile = mercantile.tile(centroid.x, centroid.y, zoom)
-        parameters['x'] = tile.x
-        parameters['y'] = tile.y
+        zoom_failures = []
+        zoom_success = []
+        zooms = list(range(min_zoom, max_zoom + 1))
+        test_zooms = zooms[:2] + zooms[-2:]
+        for zoom in set(test_zooms):
+            tile = mercantile.tile(centroid.x, centroid.y, zoom)
 
-        if '{-y}' in tms_url:
-            tms_url = tms_url.replace('{-y}', '{y}')
-            parameters['y'] = 2 ** parameters['zoom'] - 1 - tile.y
-        elif '{!y}' in tms_url:
-            tms_url = tms_url.replace('{!y}', '{y}')
-            parameters['y'] = 2 ** (parameters['zoom'] - 1) - 1 - tile.y
+            query_url = tms_url
+            if '{-y}' in tms_url:
+                y = 2 ** zoom - 1 - tile.y
+                query_url = query_url.replace('{-y}', str(y))
+            elif '{!y}' in tms_url:
+                y = 2 ** (zoom - 1) - 1 - tile.y
+                query_url = query_url.replace('{!y}', str(y))
+            else:
+                query_url = query_url.replace('{y}', str(tile.y))
+            parameters['x'] = tile.x
+            parameters['zoom'] = zoom
+            query_url = query_url.format(**parameters)
+            await asyncio.sleep(1)
+            tms_url_status = await test_url(query_url, session)
+            if tms_url_status['status'] == ResultStatus.GOOD:
+                zoom_success.append(zoom)
+            else:
+                zoom_failures.append(zoom)
+
+        tested_str = ",".join(list(map(str, test_zooms)))
+        if len(zoom_failures) == 0 and len(zoom_success) > 0:
+            return create_result(ResultStatus.GOOD,
+                                 "Zoom levels reachable. (Tested: {})".format(tested_str))
+        elif len(zoom_failures) > 0 and len(zoom_success) > 0:
+            not_found_str = ",".join(list(map(str, zoom_failures)))
+            return create_result(ResultStatus.WARNING,
+                                 "Zoom level {} not reachable. (Tested: {})".format(not_found_str,
+                                                                                    tested_str))
         else:
-            parameters['y'] = tile.y
-
-        tms_url = tms_url.format(**parameters)
-        tms_url_status = await test_url(tms_url, session)
-        return tms_url_status
+            return create_result(ResultStatus.ERROR,
+                                 "No zoom level reachable. (Tested: {})".format(tested_str))
 
     except Exception as e:
         return create_result(ResultStatus.ERROR, repr(e))
@@ -451,7 +474,7 @@ async def process(eli_path):
     """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog https://github.com/rbuffat/eli_watchdog )'}
-    timeout = aiohttp.ClientTimeout(total=300)
+    timeout = aiohttp.ClientTimeout(total=150)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []
