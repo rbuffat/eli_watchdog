@@ -1,18 +1,20 @@
 import asyncio
+import copy
 import datetime
 import glob
 import json
 import os
+from io import StringIO
 import aiofiles
 import aiohttp
 from shapely.geometry import shape
 import mercantile
-from owslib.wms import WebMapService
 from owslib.wmts import WebMapTileService
 import warnings
 import re
 from aiohttp import ClientSession
 from urllib.parse import urlparse
+import xml.etree.ElementTree as ET
 
 
 class ResultStatus:
@@ -97,6 +99,59 @@ async def test_url(url: str, session: ClientSession, **kwargs):
         return create_result(status, message)
 
 
+def parse_wms(xml):
+    """ Rudimentary parsing of WMS Layers from GetCapabilites Request"""
+    wms = {}
+    try:
+        it = ET.iterparse(StringIO(xml))
+        for _, el in it:
+            prefix, has_namespace, postfix = el.tag.partition('}')
+            if has_namespace:
+                el.tag = postfix
+        root = it.root
+    except:
+        raise RuntimeError("Could not parse XML.")
+
+    root_tag = root.tag.rpartition("}")[-1]
+    if root_tag in {'ServiceExceptionReport', 'ServiceException'}:
+        raise RuntimeError("WMS Service exception")
+
+    if root_tag not in {'WMT_MS_Capabilities', 'WMS_Capabilities'}:
+        raise RuntimeError("No Capabilities Element present: Root: {}".format(root_tag))
+
+    if not 'version' in root.attrib:
+        raise ValueError("WMS version cannot be identified.")
+    version = root.attrib['version']
+    wms['version'] = version
+
+    layers = {}
+
+    def parse_layer(element, crs=set()):
+        new_layer = {'CRS': crs}
+        for tag in ['Name', 'Title']:
+            e = element.find("./{}".format(tag))
+            if e is not None:
+                new_layer[e.tag] = e.text
+        for tag in ['CRS', 'SRS']:
+            es = element.findall("./{}".format(tag))
+            for e in es:
+                new_layer["CRS"].add(e.text)
+
+        if 'Name' in new_layer:
+            layers[new_layer['Name']] = new_layer
+
+        for sl in element.findall("./Layer"):
+            parse_layer(sl, copy.deepcopy(new_layer['CRS']))
+
+    # Layer tags we are interested in, rest is ignored
+    top_layers = root.findall(".//Capability/Layer")
+    for top_layer in top_layers:
+        parse_layer(top_layer)
+
+    wms['layers'] = layers
+    return wms
+
+
 async def check_tms(source, session: ClientSession, **kwargs):
     """
     Check TMS source
@@ -119,7 +174,7 @@ async def check_tms(source, session: ClientSession, **kwargs):
     try:
         geom = shape(source['geometry'])
         centroid = geom.centroid
-    
+
         tms_url = source['properties']['url']
         parameters = {}
 
@@ -185,10 +240,13 @@ async def check_wms(source, session: ClientSession):
     if 'layers' not in wms_args:
         return create_result(ResultStatus.ERROR, "No layers specified in: {}".format(wms_url))
 
-    def get_getcapabilitie_url(wmsversion):
+    def get_getcapabilitie_url(wms_version):
+
         get_capabilities_args = {'service': 'WMS',
-                                 'request': 'GetCapabilities',
-                                 'version': wmsversion}
+                                 'request': 'GetCapabilities'}
+        if wms_version is not None:
+            get_capabilities_args['version'] = wms_version
+
         if 'map' in wms_args:
             get_capabilities_args['map'] = wms_args['map']
 
@@ -196,28 +254,37 @@ async def check_wms(source, session: ClientSession):
         wms_args_str = "&".join(["{}={}".format(k, v) for k, v in get_capabilities_args.items()])
         return "{}?{}".format(wms_base_url, wms_args_str)
 
+    # We first send a service=WMS&request=GetCapabilities request to server
+    # According to the WMS Specification Section 6.2 Version numbering and negotiation, the server should return
+    # the GetCapabilities XML in the highest version he supports.
+    # If this fails, it is tried to explicitly specify the WMS version
+    exceptions = []
     wms = None
-    for wmsversion in ['1.3.0', '1.1.1']:  # TODO 1.1.0 not supported by owslib
+    for wmsversion in [None, '1.3.0', '1.1.1', '1.1.0', '1.0.0']:
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
-            response = await get_url(wms_getcapabilites_url, session, with_text=True)
-            if isinstance(response, dict):
+            resp = await get_url(wms_getcapabilites_url, session, with_text=True)
+            if isinstance(resp, dict):
+                exceptions.append((wmsversion, resp['message']))
                 continue
-            xml = response[1]
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                wms = WebMapService(wms_getcapabilites_url, xml=xml.encode('utf-8'), version=wmsversion)
+            xml = resp[1]
+            wms = parse_wms(xml)
+            if wms is not None:
+                break
         except Exception as e:
+            exceptions.append((wmsversion, repr(e)))
             continue
 
     if wms is None:
-        return create_result(ResultStatus.ERROR, "Could not access GetCapabilities of {}".format(wms_url_split[0]))
+        return create_result(ResultStatus.ERROR, "Could not access GetCapabilities of {}: {}".format(wms_url_split[0],
+                                                                                                     str(exceptions)))
 
     # TODO check styles
     layer_arg = wms_args['layers']
     not_found_layers = []
+
     for layer_name in layer_arg.split(","):
-        if layer_name not in wms.contents:
+        if layer_name not in wms['layers']:
             not_found_layers.append(layer_name)
     if len(not_found_layers) > 0:
         return create_result(ResultStatus.ERROR, "Layers {layers} could not be found under url '{url}'.".format(
@@ -254,7 +321,7 @@ async def check_wms_endpoint(source, session: ClientSession):
             if isinstance(response, dict):
                 return response
             xml = response[1]
-            wms = WebMapService(wms_url, xml=xml.encode('utf-8'))
+            wms = parse_wms(xml)
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
         return create_result(ResultStatus.ERROR, repr(e))
@@ -344,7 +411,7 @@ async def process_source(filename, session: ClientSession):
         # Check imagery only for recent imagery
         if 'end_date' in source['properties']:
             age = datetime.date.today().year - int(source['properties']['end_date'].split("-")[0])
-            if age > 20:
+            if age > 30:
                 result['imagery'] = create_result(ResultStatus.WARNING,
                                                   "Not checked due to age: {} years".format(age))
         if not 'imagery' in result:
@@ -354,7 +421,6 @@ async def process_source(filename, session: ClientSession):
 
             # check wms
             elif source['properties']['type'] == 'wms':
-                # result['imagery'] = create_result(ResultStatus.WARNING, "disabled")
                 result['imagery'] = await check_wms(source, session)
 
             # check wms_endpoint

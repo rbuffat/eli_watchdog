@@ -25,7 +25,7 @@
                     <td class="table-warning">{{ source.imagery.message }}</td>
                     {% else %}
                     <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message }}">{{
-                        source.imagery.message[:50] }}</a></td>
+                        source.imagery.message[:60] }}</a></td>
                     {% endif %}
     
                     {% if source.license_url.status == 'good' %}
@@ -33,10 +33,10 @@
                     {% elif source.license_url.status == 'warning'%}
                     <td class="table-warning"><a href="#" data-toggle="tooltip"
                                                  title="{{ source.license_url.message }}">{{
-                        source.license_url.message[:50] }}</a></td>
+                        source.license_url.message[:60] }}</a></td>
                     {% else %}
                     <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{
-                        source.license_url.message[:50] }}</a></td>
+                        source.license_url.message[:60] }}</a></td>
                     {% endif %}
     
     
@@ -45,11 +45,11 @@
                     {% elif source.privacy_policy_url.status == 'warning'%}
                     <td class="table-warning"><a href="#" data-toggle="tooltip"
                                                  title="{{ source.privacy_policy_url.message }}">{{
-                        source.privacy_policy_url.message[:50] }}</a></td>
+                        source.privacy_policy_url.message[:60] }}</a></td>
                     {% else %}
                     <td class="table-danger"><a href="#" data-toggle="tooltip"
                                                 title="{{ source.privacy_policy_url.message }}">{{
-                        source.privacy_policy_url.message[:50] }}</a></td>
+                        source.privacy_policy_url.message[:60] }}</a></td>
                     {% endif %}
     
                 </tr>
