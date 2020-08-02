@@ -22,21 +22,21 @@
                     {% if source.imagery.status == 'good' %}
                     <td class="table-success">Good</td>
                     {% elif source.imagery.status == 'warning'%}
-                    <td class="table-warning">{{ source.imagery.message }}</td>
+                    <td class="table-warning">{{ source.imagery.message|join('<br />') }}</td>
                     {% else %}
-                    <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message }}">{{
-                        source.imagery.message[:60] }}</a></td>
+                    <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.imagery.message|join('<br />') }}">{{
+                        source.imagery.message|join('<br />') }}</a></td>
                     {% endif %}
     
                     {% if source.license_url.status == 'good' %}
                     <td class="table-success">Good</td>
                     {% elif source.license_url.status == 'warning'%}
                     <td class="table-warning"><a href="#" data-toggle="tooltip"
-                                                 title="{{ source.license_url.message }}">{{
-                        source.license_url.message[:60] }}</a></td>
+                                                 title="{{ source.license_url.message|join('<br />') }}">{{
+                        source.license_url.message|join('<br />') }}</a></td>
                     {% else %}
-                    <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message }}">{{
-                        source.license_url.message[:60] }}</a></td>
+                    <td class="table-danger"><a href="#" data-toggle="tooltip" title="{{ source.license_url.message|join('<br />') }}">{{
+                        source.license_url.message|join('<br />') }}</a></td>
                     {% endif %}
     
     
@@ -44,12 +44,12 @@
                     <td class="table-success">Good</td>
                     {% elif source.privacy_policy_url.status == 'warning'%}
                     <td class="table-warning"><a href="#" data-toggle="tooltip"
-                                                 title="{{ source.privacy_policy_url.message }}">{{
-                        source.privacy_policy_url.message[:60] }}</a></td>
+                                                 title="{{ source.privacy_policy_url.message|join('<br />') }}">{{
+                        source.privacy_policy_url.message|join('<br />') }}</a></td>
                     {% else %}
                     <td class="table-danger"><a href="#" data-toggle="tooltip"
-                                                title="{{ source.privacy_policy_url.message }}">{{
-                        source.privacy_policy_url.message[:60] }}</a></td>
+                                                title="{{ source.privacy_policy_url.message|join('<br />') }}">{{
+                        source.privacy_policy_url.message|join('<br />') }}</a></td>
                     {% endif %}
     
                 </tr>

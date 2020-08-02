@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import datetime
 import glob
 import json
@@ -13,7 +12,7 @@ from owslib.wmts import WebMapTileService
 import warnings
 import re
 from aiohttp import ClientSession
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 import xml.etree.ElementTree as ET
 
 
@@ -100,7 +99,10 @@ async def test_url(url: str, session: ClientSession, **kwargs):
 
 
 def parse_wms(xml):
-    """ Rudimentary parsing of WMS Layers from GetCapabilites Request"""
+    """ Rudimentary parsing of WMS Layers from GetCapabilites Request
+        owslib.wms seems to have problems parsing some weird not relevant metadata.
+        This function aims at only parsing relevant layer metadata
+    """
     wms = {}
     try:
         it = ET.iterparse(StringIO(xml))
@@ -114,10 +116,10 @@ def parse_wms(xml):
 
     root_tag = root.tag.rpartition("}")[-1]
     if root_tag in {'ServiceExceptionReport', 'ServiceException'}:
-        raise RuntimeError("WMS Service exception")
+        raise RuntimeError("WMS service exception")
 
     if root_tag not in {'WMT_MS_Capabilities', 'WMS_Capabilities'}:
-        raise RuntimeError("No Capabilities Element present: Root: {}".format(root_tag))
+        raise RuntimeError("No Capabilities Element present: Root tag: {}".format(root_tag))
 
     if not 'version' in root.attrib:
         raise ValueError("WMS version cannot be identified.")
@@ -126,8 +128,10 @@ def parse_wms(xml):
 
     layers = {}
 
-    def parse_layer(element, crs=set()):
-        new_layer = {'CRS': crs}
+    def parse_layer(element, crs=set(), styles={}):
+        new_layer = {'CRS': crs,
+                     'Styles': {}}
+        new_layer['Styles'].update(styles)
         for tag in ['Name', 'Title']:
             e = element.find("./{}".format(tag))
             if e is not None:
@@ -136,14 +140,23 @@ def parse_wms(xml):
             es = element.findall("./{}".format(tag))
             for e in es:
                 new_layer["CRS"].add(e.text)
+        for tag in ['Style']:
+            es = element.findall("./{}".format(tag))
+            for e in es:
+                new_style = {}
+                for styletag in ['Title', 'Name']:
+                    new_style[styletag] = element.find("./{}".format(styletag)).text
+                new_layer["Styles"][new_style['Name']] = new_style
 
         if 'Name' in new_layer:
             layers[new_layer['Name']] = new_layer
 
         for sl in element.findall("./Layer"):
-            parse_layer(sl, copy.deepcopy(new_layer['CRS']))
+            parse_layer(sl,
+                        new_layer['CRS'].copy(),
+                        new_layer['Styles'])
 
-    # Layer tags we are interested in, rest is ignored
+    # Find child layers. CRS and Styles are inherited from parent
     top_layers = root.findall(".//Capability/Layer")
     for top_layer in top_layers:
         parse_layer(top_layer)
@@ -211,7 +224,7 @@ async def check_tms(source, session: ClientSession, **kwargs):
             parameters['x'] = tile.x
             parameters['zoom'] = zoom
             query_url = query_url.format(**parameters)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
             tms_url_status = await test_url(query_url, session)
             if tms_url_status['status'] == ResultStatus.GOOD:
                 zoom_success.append(zoom)
@@ -252,12 +265,16 @@ async def check_wms(source, session: ClientSession):
     dict:
         Result dict created by create_result()
     """
+
+    wms_warnings = []
+    wms_errors = []
+
     wms_url = source['properties']['url']
-    wms_url_split = wms_url.rsplit('?', 1)
-    wms_args_list = wms_url_split[1].split("&")
+
     wms_args = {}
-    for wms_arg in wms_args_list:
-        k, v = wms_arg.split("=")
+    u = urlparse(wms_url)
+    url_parts = list(u)
+    for k, v in parse_qsl(u.query):
         wms_args[k.lower()] = v
 
     if 'layers' not in wms_args:
@@ -270,51 +287,74 @@ async def check_wms(source, session: ClientSession):
         if wms_version is not None:
             get_capabilities_args['version'] = wms_version
 
+        # Some server only return capabilities when the map parameter is specified
         if 'map' in wms_args:
             get_capabilities_args['map'] = wms_args['map']
 
-        wms_base_url = wms_url_split[0]
-        wms_args_str = "&".join(["{}={}".format(k, v) for k, v in get_capabilities_args.items()])
-        return "{}?{}".format(wms_base_url, wms_args_str)
+        url_parts[4] = urlencode(list(get_capabilities_args.items()))
+        return urlunparse(url_parts)
 
     # We first send a service=WMS&request=GetCapabilities request to server
     # According to the WMS Specification Section 6.2 Version numbering and negotiation, the server should return
-    # the GetCapabilities XML in the highest version he supports.
-    # If this fails, it is tried to explicitly specify the WMS version
+    # the GetCapabilities XML with the highest version the server supports.
+    # If this fails, it is tried to explicitly specify a WMS version
     exceptions = []
     wms = None
     for wmsversion in [None, '1.3.0', '1.1.1', '1.1.0', '1.0.0']:
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
+
             resp = await get_url(wms_getcapabilites_url, session, with_text=True)
             if isinstance(resp, dict):
-                exceptions.append((wmsversion, resp['message']))
+                exceptions.append("WMS {}: Connection Error: {}".format(wmsversion, resp[1]))
                 continue
             xml = resp[1]
             wms = parse_wms(xml)
             if wms is not None:
                 break
         except Exception as e:
-            exceptions.append((wmsversion, str(e)))
+            exceptions.append("WMS {}: Error: {}".format(wmsversion, str(e)))
             continue
 
     if wms is None:
-        return create_result(ResultStatus.ERROR, "Could not access GetCapabilities of {}: {}".format(wms_url_split[0],
-                                                                                                     str(exceptions)))
+        message = ["Could not access GetCapabilities:"] + exceptions
+        return create_result(ResultStatus.ERROR, message)
 
-    # TODO check styles
     layer_arg = wms_args['layers']
     not_found_layers = []
 
     for layer_name in layer_arg.split(","):
         if layer_name not in wms['layers']:
             not_found_layers.append(layer_name)
+
+    if 'styles' in wms_args:
+        # default style needs not to be advertised by the server
+        style = wms_args['styles']
+        if not style == 'default':
+            for layer_name in layer_arg.split(","):
+                if style not in wms['layers'][layer_name]['Styles']:
+                    wms_errors.append("Layer '{}' does not support style '{}'".format(layer_name, style))
+
     if len(not_found_layers) > 0:
-        return create_result(ResultStatus.ERROR, "Layers {layers} could not be found under url '{url}'.".format(
-            layers=",".join(not_found_layers),
-            url=wms_getcapabilites_url))
+        wms_errors.append("Layers '{}' not present.".format(",".join(not_found_layers)))
+
+    if wms_args['version'] < wms['version']:
+        wms_warnings.append("Query requests WMS version '{}', server supports '{}'".format(wms_args['version'],
+                                                                                           wms['version']))
+
+    if len(wms_errors) > 0:
+        status = ResultStatus.ERROR
+    elif len(wms_errors) == 0 and len(wms_warnings) == 0:
+        status = ResultStatus.GOOD
     else:
-        return create_result(ResultStatus.GOOD, "Found layers")
+        status = ResultStatus.WARNING
+
+    if status == ResultStatus.GOOD:
+        message = "Found layers"
+    else:
+        message = ["Error: {}".format(m) for m in wms_errors] + ["Warning: {}".format(m) for m in wms_warnings]
+
+    return create_result(status, message)
 
 
 async def check_wms_endpoint(source, session: ClientSession):
@@ -474,7 +514,7 @@ async def process(eli_path):
     """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible; MSIE 6.0; ELI Watchdog https://github.com/rbuffat/eli_watchdog )'}
-    timeout = aiohttp.ClientTimeout(total=150)
+    timeout = aiohttp.ClientTimeout(total=30)
 
     async with ClientSession(headers=headers, timeout=timeout) as session:
         jobs = []

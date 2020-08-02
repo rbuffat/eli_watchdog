@@ -108,7 +108,12 @@ def render_countries(data):
             d['filename'])
 
         def transform_result(result):
-            result['message'] = html.escape(result['message'])
+            messages = result['message']
+            print(github_url, messages)
+            if isinstance(messages, str):
+                messages = [messages]
+            messages = [html.escape(msg) for msg in messages]
+            result['message'] = messages
             return result
 
         collect[(country_key['region'], country_key['country'], " / ".join(d['directory']))].append({
