@@ -57,13 +57,13 @@ def render_overview(data):
 
         total[region] += 1
 
-        if d['imagery']['status'] == 'good':
+        if d['imagery']['status'] in {'good', 'warning'}:
             good['imagery'][region] += 1
 
-        if d['license_url']['status'] == 'good':
+        if d['license_url']['status'] in {'good', 'warning'}:
             good['license_url'][region] += 1
 
-        if d['privacy_policy_url']['status'] == 'good':
+        if d['privacy_policy_url']['status'] in {'good', 'warning'}:
             good['privacy_policy_url'][region] += 1
 
     def calc(cat, region_key):
@@ -109,7 +109,6 @@ def render_countries(data):
 
         def transform_result(result):
             messages = result['message']
-            print(github_url, messages)
             if isinstance(messages, str):
                 messages = [messages]
             messages = [html.escape(msg) for msg in messages]

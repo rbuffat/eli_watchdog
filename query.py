@@ -121,8 +121,8 @@ def parse_wms(xml):
     if root_tag not in {'WMT_MS_Capabilities', 'WMS_Capabilities'}:
         raise RuntimeError("No Capabilities Element present: Root tag: {}".format(root_tag))
 
-    if not 'version' in root.attrib:
-        raise ValueError("WMS version cannot be identified.")
+    if 'version' not in root.attrib:
+        raise RuntimeError("WMS version cannot be identified.")
     version = root.attrib['version']
     wms['version'] = version
 
