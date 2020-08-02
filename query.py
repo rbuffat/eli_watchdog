@@ -62,7 +62,7 @@ async def get_url(url: str, session: ClientSession, with_text=False):
                 response_cache[url] = create_result(ResultStatus.ERROR, "Timeout for: {}".format(url))
             except Exception as e:
                 print("Error for: {} ({})".format(url, str(e)))
-                response_cache[url] = create_result(ResultStatus.ERROR, "{} for {}".format(repr(e), url))
+                response_cache[url] = create_result(ResultStatus.ERROR, "{} for {}".format(str(e), url))
         else:
             print("Cached {}".format(url))
 
@@ -232,7 +232,7 @@ async def check_tms(source, session: ClientSession, **kwargs):
                                  "No zoom level reachable. (Tested: {})".format(tested_str))
 
     except Exception as e:
-        return create_result(ResultStatus.ERROR, repr(e))
+        return create_result(ResultStatus.ERROR, str(e))
 
 
 async def check_wms(source, session: ClientSession):
@@ -295,7 +295,7 @@ async def check_wms(source, session: ClientSession):
             if wms is not None:
                 break
         except Exception as e:
-            exceptions.append((wmsversion, repr(e)))
+            exceptions.append((wmsversion, str(e)))
             continue
 
     if wms is None:
@@ -347,7 +347,7 @@ async def check_wms_endpoint(source, session: ClientSession):
             wms = parse_wms(xml)
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
-        return create_result(ResultStatus.ERROR, repr(e))
+        return create_result(ResultStatus.ERROR, str(e))
 
 
 async def check_wmts(source, session):
@@ -378,7 +378,7 @@ async def check_wmts(source, session):
             wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
-        return create_result(ResultStatus.ERROR, repr(e))
+        return create_result(ResultStatus.ERROR, str(e))
 
 
 async def process_source(filename, session: ClientSession):
