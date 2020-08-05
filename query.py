@@ -39,7 +39,7 @@ domain_lock = asyncio.Lock()
 
 async def get_url(url: str, session: ClientSession, with_text=False):
     """ Ensure that only one request is sent to a domain at one point in time and that the same url is not
-    queried mor than once.
+    queried more than once.
     """
     o = urlparse(url)
     if len(o.netloc) == 0:
@@ -195,7 +195,10 @@ async def check_tms(source, session: ClientSession, **kwargs):
         tms_url = source['properties']['url']
         parameters = {}
 
-        if "switch:" in tms_url:
+        if '{apikey}' in tms_url:
+            return create_result(ResultStatus.WARNING, "URL requires apikey")
+
+        if "{switch:" in tms_url:
             match = re.search(r'switch:?([^}]*)', tms_url)
             switches = match.group(1).split(',')
             tms_url = tms_url.replace(match.group(0), 'switch')
@@ -211,9 +214,10 @@ async def check_tms(source, session: ClientSession, **kwargs):
 
         zoom_failures = []
         zoom_success = []
-        zooms = list(range(min_zoom, max_zoom + 1))
-        test_zooms = zooms[:2] + zooms[-2:]
-        for zoom in set(test_zooms):
+        tested_zooms = set()
+
+        async def test_zoom(zoom):
+            tested_zooms.add(zoom)
             tile = mercantile.tile(centroid.x, centroid.y, zoom)
 
             query_url = tms_url
@@ -232,13 +236,33 @@ async def check_tms(source, session: ClientSession, **kwargs):
             tms_url_status = await test_url(query_url, session)
             if tms_url_status['status'] == ResultStatus.GOOD:
                 zoom_success.append(zoom)
+                return True
             else:
                 zoom_failures.append(zoom)
+                return False
 
-        tested_str = ",".join(list(map(str, test_zooms)))
+        # Test min zoom. In case of failure, increase test range
+        result = await test_zoom(min_zoom)
+        if not result:
+            for zoom in range(min_zoom + 1, min_zoom + 4):
+                if zoom not in tested_zooms:
+                    result = await test_zoom(zoom)
+                    if result:
+                        break
+
+        # Test max_zoom. In case of failure, increase test range
+        result = await test_zoom(max_zoom)
+        if not result:
+            for zoom in range(max_zoom, max_zoom - 4, -1):
+                if zoom not in tested_zooms:
+                    result = await test_zoom(zoom)
+                    if result:
+                        break
+
+        tested_str = ",".join(list(map(str, tested_zooms)))
         if len(zoom_failures) == 0 and len(zoom_success) > 0:
             return create_result(ResultStatus.GOOD,
-                                 "Zoom levels reachable. (Tested: {})".format(tested_str))
+                                 "Zoom levels reachable. (Tested: {})".format(sorted(tested_str)))
         elif len(zoom_failures) > 0 and len(zoom_success) > 0:
             not_found_str = ",".join(list(map(str, zoom_failures)))
             return create_result(ResultStatus.WARNING,
