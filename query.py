@@ -259,12 +259,12 @@ async def check_tms(source, session: ClientSession, **kwargs):
                     if result:
                         break
 
-        tested_str = ",".join(list(map(str, tested_zooms)))
+        tested_str = ",".join(list(map(str, sorted(tested_zooms))))
         if len(zoom_failures) == 0 and len(zoom_success) > 0:
             return create_result(ResultStatus.GOOD,
-                                 "Zoom levels reachable. (Tested: {})".format(sorted(tested_str)))
+                                 "Zoom levels reachable. (Tested: {})".format(tested_str))
         elif len(zoom_failures) > 0 and len(zoom_success) > 0:
-            not_found_str = ",".join(list(map(str, zoom_failures)))
+            not_found_str = ",".join(list(map(str, sorted(zoom_failures))))
             return create_result(ResultStatus.WARNING,
                                  "Zoom level {} not reachable. (Tested: {})".format(not_found_str,
                                                                                     tested_str))
