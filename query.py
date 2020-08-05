@@ -3,6 +3,7 @@ import datetime
 import glob
 import json
 import os
+from collections import namedtuple
 from io import StringIO
 import aiofiles
 import aiohttp
@@ -27,6 +28,10 @@ def create_result(status, message):
             'message': message}
 
 
+RequestResult = namedtuple('RequestResultCache',
+                           ['status', 'text', 'exception'],
+                           defaults=[None, None, None])
+
 response_cache = {}
 domain_locks = {}
 domain_lock = asyncio.Lock()
@@ -38,7 +43,7 @@ async def get_url(url: str, session: ClientSession, with_text=False):
     """
     o = urlparse(url)
     if len(o.netloc) == 0:
-        return create_result(ResultStatus.ERROR, "Could not parse: {}".format(url))
+        return RequestResult(exception="Could not parse URL: {}".format(url))
 
     async with domain_lock:
         if o.netloc not in domain_locks:
@@ -53,15 +58,14 @@ async def get_url(url: str, session: ClientSession, with_text=False):
                     status = response.status
                     if with_text:
                         text = await response.text()
-                        response_cache[url] = (status, text)
+                        response_cache[url] = RequestResult(status=status, text=text)
                     else:
-                        response_cache[url] = (status, None)
+                        response_cache[url] = RequestResult(status=status)
             except asyncio.TimeoutError:
-                print("Timeout for: {}".format(url))
-                response_cache[url] = create_result(ResultStatus.ERROR, "Timeout for: {}".format(url))
+                response_cache[url] = RequestResult(exception="Timeout for: {}".format(url))
             except Exception as e:
                 print("Error for: {} ({})".format(url, str(e)))
-                response_cache[url] = create_result(ResultStatus.ERROR, "{} for {}".format(str(e), url))
+                response_cache[url] = RequestResult(exception="Exception {} for: {}".format(str(e), url))
         else:
             print("Cached {}".format(url))
 
@@ -86,8 +90,8 @@ async def test_url(url: str, session: ClientSession, **kwargs):
         Result dict created by create_result()
     """
     resp = await get_url(url, session)
-    if isinstance(resp, dict):
-        return resp
+    if resp.exception is not None:
+        return create_result(ResultStatus.ERROR, resp.exception)
     else:
         status_code = resp[0]
         if status_code == 200:
@@ -305,10 +309,10 @@ async def check_wms(source, session: ClientSession):
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
 
             resp = await get_url(wms_getcapabilites_url, session, with_text=True)
-            if isinstance(resp, dict):
-                exceptions.append("WMS {}: Connection Error: {}".format(wmsversion, resp[1]))
+            if resp.exception is not None:
+                exceptions.append("WMS {}: Connection Error: {}".format(wmsversion, resp.exception))
                 continue
-            xml = resp[1]
+            xml = resp.text
             wms = parse_wms(xml)
             if wms is not None:
                 break
@@ -381,9 +385,9 @@ async def check_wms_endpoint(source, session: ClientSession):
             warnings.simplefilter("ignore")
 
             response = await get_url(wms_url, session, with_text=True)
-            if isinstance(response, dict):
-                return response
-            xml = response[1]
+            if response.exception is not None:
+                return create_result(ResultStatus.ERROR, response.exception)
+            xml = response.text
             wms = parse_wms(xml)
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
@@ -412,9 +416,10 @@ async def check_wmts(source, session):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             response = await get_url(wmts_url, session, with_text=True)
-            if isinstance(response, dict):
-                return response
-            xml = response[1]
+            if response.exception is not None:
+                return create_result(ResultStatus.ERROR, response.exception)
+
+            xml = response.text
             wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
             return create_result(ResultStatus.GOOD, "")
     except Exception as e:
