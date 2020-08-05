@@ -244,7 +244,7 @@ async def check_tms(source, session: ClientSession, **kwargs):
         # Test min zoom. In case of failure, increase test range
         result = await test_zoom(min_zoom)
         if not result:
-            for zoom in range(min_zoom + 1, min_zoom + 4):
+            for zoom in range(min_zoom + 1, min(min_zoom + 4, max_zoom)):
                 if zoom not in tested_zooms:
                     result = await test_zoom(zoom)
                     if result:
@@ -253,7 +253,7 @@ async def check_tms(source, session: ClientSession, **kwargs):
         # Test max_zoom. In case of failure, increase test range
         result = await test_zoom(max_zoom)
         if not result:
-            for zoom in range(max_zoom, max_zoom - 4, -1):
+            for zoom in range(max_zoom, max(max_zoom - 4, min_zoom), -1):
                 if zoom not in tested_zooms:
                     result = await test_zoom(zoom)
                     if result:
