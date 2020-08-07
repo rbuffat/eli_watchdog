@@ -7,7 +7,7 @@ from collections import namedtuple
 from io import StringIO
 import aiofiles
 import aiohttp
-from shapely.geometry import shape
+from shapely.geometry import shape, MultiPolygon
 import mercantile
 from owslib.wmts import WebMapTileService
 import warnings
@@ -186,17 +186,19 @@ async def check_tms(source, session: ClientSession, **kwargs):
     dict:
         Result dict created by create_result()
     """
-    # TODO deal with {apikey}
+
     try:
         geom = shape(source['geometry'])
-        # TODO multipolygons and holes!
-        centroid = geom.centroid
+        if isinstance(geom, MultiPolygon):
+            centroid = list(geom.geoms)[0].centroid
+        else:
+            centroid = geom.centroid
 
         tms_url = source['properties']['url']
         parameters = {}
 
         if '{apikey}' in tms_url:
-            return create_result(ResultStatus.WARNING, "URL requires apikey")
+            return create_result(ResultStatus.WARNING, "Not possible to check, requires apikey.")
 
         if "{switch:" in tms_url:
             match = re.search(r'switch:?([^}]*)', tms_url)
@@ -206,7 +208,6 @@ async def check_tms(source, session: ClientSession, **kwargs):
 
         min_zoom = 0
         max_zoom = 22
-
         if 'min_zoom' in source['properties']:
             min_zoom = int(source['properties']['min_zoom'])
         if 'max_zoom' in source['properties']:
