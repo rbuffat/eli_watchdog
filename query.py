@@ -143,7 +143,7 @@ def parse_wms(xml):
         for tag in ['CRS', 'SRS']:
             es = element.findall("./{}".format(tag))
             for e in es:
-                new_layer["CRS"].add(e.text)
+                new_layer["CRS"].add(e.text.upper())
         for tag in ['Style']:
             es = element.findall("./{}".format(tag))
             for e in es:
@@ -317,8 +317,24 @@ async def check_wms(source, session: ClientSession):
     for k, v in parse_qsl(u.query):
         wms_args[k.lower()] = v
 
-    if 'layers' not in wms_args:
-        return create_result(ResultStatus.ERROR, "No layers specified in: {}".format(wms_url))
+    # Check mandatory WMS GetCapabilites parameters
+    missing_request_parameters = set()
+    for request_parameter in ['version', 'request', 'layers', 'bbox', 'width', 'height', 'format']:
+        if request_parameter.lower() not in wms_args:
+            missing_request_parameters.add(request_parameter)
+    if 'version' in wms_args and wms_args['version'] == '1.3.0':
+        if 'crs' not in wms_args:
+            missing_request_parameters.add('crs')
+    elif 'version' in wms_args and not wms_args['version'] == '1.3.0':
+        if 'srs' not in wms_args:
+            missing_request_parameters.add('srs')
+    if len(missing_request_parameters) > 0:
+        missing_request_parameters_str = ",".join(missing_request_parameters)
+        error_msgs.append("Parameter '{}' is missing in url.".format(missing_request_parameters_str))
+        return good_msgs, warning_msgs, error_msgs
+    # Styles is mandatory according to the WMS specification, but some WMS servers seems not to care
+    if 'styles' not in wms_args:
+        warning_msgs.append("Parameter 'styles' is missing in url. 'STYLES=' can be used to request default style.")
 
     def get_getcapabilitie_url(wms_version):
 
@@ -366,18 +382,6 @@ async def check_wms(source, session: ClientSession):
             error_msgs.append(msg)
         return good_msgs, warning_msgs, error_msgs
 
-    # Check mandatory WMS GetCapabilites parameters
-    missing_request_parameters = set()
-    for request_parameter in ['version', 'request', 'layers', 'styles', 'bbox', 'width', 'height', 'format']:
-        if request_parameter.lower() not in wms_args:
-            missing_request_parameters.add(request_parameter)
-    if 'version' in wms_args['version'] and wms_args['version'] == '1.3.0':
-        if 'crs' not in wms_args:
-            missing_request_parameters.add('crs')
-    elif 'version' in wms_args['version'] and not wms_args['version'] == '1.3.0':
-        if 'srs' not in wms_args:
-            missing_request_parameters.add('srs')
-
     # Check layers
     if 'layers' in wms_args:
         layer_arg = wms_args['layers']
@@ -391,12 +395,17 @@ async def check_wms(source, session: ClientSession):
 
         # Check styles
         if 'styles' in wms_args:
-            # default style needs not to be advertised by the server
+            layers = layer_arg.split(',')
             style = wms_args['styles']
-            if not style == 'default':
-                for layer_name in layer_arg.split(","):
-                    if layer_name in wms['layers'] and style not in wms['layers'][layer_name]['Styles']:
-                        warning_msgs.append("Layer '{}' does not support style '{}'".format(layer_name, style))
+            # default style needs not to be advertised by the server
+            if not (style == 'default' or style == '' or style == ',' * len(layers)):
+                styles = wms_args['styles'].split(',')
+                if not len(styles) == len(layers):
+                    error_msgs.append("Not the same number of styles and layers.")
+                else:
+                    for layer_name, style in zip(layers, styles):
+                        if layer_name in wms['layers'] and style not in wms['layers'][layer_name]['Styles']:
+                            warning_msgs.append("Layer '{}' does not support style '{}'".format(layer_name, style))
 
         # Check CRS
         if 'available_projections' not in source['properties']:
@@ -406,14 +415,14 @@ async def check_wms(source, session: ClientSession):
                 if layer_name in wms['layers']:
                     not_supported_crs = set()
                     for crs in source['properties']['available_projections']:
-                        if crs not in wms['layers'][layer_name]['CRS']:
+                        if crs.upper() not in wms['layers'][layer_name]['CRS']:
                             not_supported_crs.add(crs)
 
                     if len(not_supported_crs) > 0:
                         supported_crs_str = ",".join(wms['layers'][layer_name]['CRS'])
                         not_supported_crs_str = ",".join(not_supported_crs)
-                        error_msgs.append("CRS '{}' not in: {}".format(not_supported_crs_str,
-                                                                       supported_crs_str))
+                        warning_msgs.append("CRS '{}' not in: {}".format(not_supported_crs_str,
+                                                                         supported_crs_str))
 
     if wms_args['version'] < wms['version']:
         warning_msgs.append("Query requests WMS version '{}', server supports '{}'".format(wms_args['version'],
@@ -457,7 +466,8 @@ async def check_wms_endpoint(source, session: ClientSession):
 
             response = await get_url(wms_url, session, with_text=True)
             if response.exception is not None:
-                return create_result(ResultStatus.ERROR, response.exception)
+                error_msgs.append(response.exception)
+                return good_msgs, warning_msgs, error_msgs
             xml = response.text
             wms = parse_wms(xml)
             good_msgs.append("Good")
@@ -498,7 +508,8 @@ async def check_wmts(source, session):
             warnings.simplefilter("ignore")
             response = await get_url(wmts_url, session, with_text=True)
             if response.exception is not None:
-                return create_result(ResultStatus.ERROR, response.exception)
+                error_msgs.append(response.exception)
+                return good_msgs, warning_msgs, error_msgs
 
             xml = response.text
             wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
