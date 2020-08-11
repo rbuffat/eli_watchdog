@@ -72,7 +72,7 @@ def render_overview(data):
         percent = count / tot * 100.0
         if percent == 100:
             status = "success"
-        elif 90 < percent < 100:
+        elif 90 <= percent < 100:
             status = "warning"
         else:
             status = "danger"

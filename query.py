@@ -7,6 +7,7 @@ from collections import namedtuple
 from io import StringIO
 import aiofiles
 import aiohttp
+import validators
 from shapely.geometry import shape, MultiPolygon
 import mercantile
 from owslib.wmts import WebMapTileService
@@ -136,7 +137,7 @@ def parse_wms(xml):
         new_layer = {'CRS': crs,
                      'Styles': {}}
         new_layer['Styles'].update(styles)
-        for tag in ['Name', 'Title']:
+        for tag in ['Name', 'Title', 'Abstract']:
             e = element.find("./{}".format(tag))
             if e is not None:
                 new_layer[e.tag] = e.text
@@ -149,7 +150,9 @@ def parse_wms(xml):
             for e in es:
                 new_style = {}
                 for styletag in ['Title', 'Name']:
-                    new_style[styletag] = element.find("./{}".format(styletag)).text
+                    el = e.find("./{}".format(styletag))
+                    if el is not None:
+                        new_style[styletag] = el.text
                 new_layer["Styles"][new_style['Name']] = new_style
 
         if 'Name' in new_layer:
@@ -166,6 +169,13 @@ def parse_wms(xml):
         parse_layer(top_layer)
 
     wms['layers'] = layers
+
+    # Parse formats
+    formats = []
+    for es in root.findall(".//Capability/Request/GetMap/Format"):
+        formats.append(es.text)
+    wms['formats'] = formats
+
     return wms
 
 
@@ -203,6 +213,8 @@ async def check_tms(source, session: ClientSession):
             centroid = geom.centroid
 
         tms_url = source['properties']['url']
+        if not validators.url(tms_url.replace('{', '').replace('}', '')):
+            error_msgs.append("URL validation error: {}".format(tms_url))
         parameters = {}
 
         if '{apikey}' in tms_url:
@@ -310,6 +322,8 @@ async def check_wms(source, session: ClientSession):
     good_msgs = []
 
     wms_url = source['properties']['url']
+    if not validators.url(wms_url.replace('{', '').replace('}', '')):
+        error_msgs.append("URL validation error: {}".format(wms_url))
 
     wms_args = {}
     u = urlparse(wms_url)
@@ -375,6 +389,7 @@ async def check_wms(source, session: ClientSession):
                 break
         except Exception as e:
             exceptions.append("WMS {}: Error: {}".format(wmsversion_str, str(e)))
+            print(wms_getcapabilites_url, str(e))
             continue
 
     if wms is None:
@@ -405,7 +420,7 @@ async def check_wms(source, session: ClientSession):
                 else:
                     for layer_name, style in zip(layers, styles):
                         if layer_name in wms['layers'] and style not in wms['layers'][layer_name]['Styles']:
-                            warning_msgs.append("Layer '{}' does not support style '{}'".format(layer_name, style))
+                            error_msgs.append("Layer '{}' does not support style '{}'".format(layer_name, style))
 
         # Check CRS
         if 'available_projections' not in source['properties']:
@@ -427,6 +442,16 @@ async def check_wms(source, session: ClientSession):
     if wms_args['version'] < wms['version']:
         warning_msgs.append("Query requests WMS version '{}', server supports '{}'".format(wms_args['version'],
                                                                                            wms['version']))
+
+    # Check formats
+    imagery_format = wms_args['format']
+    imagery_formats_str = "', '".join(wms['formats'])
+    if imagery_format not in wms['formats']:
+        error_msgs.append("Format '{}' not in '{}'.".format(imagery_format, imagery_formats_str))
+
+    if 'jpeg' not in imagery_format and 'jpeg' in imagery_formats_str:
+        warning_msgs.append("Server supports jpeg, but '{}' is used. "
+                            "(Server supports: '{}')".format(imagery_format, imagery_formats_str))
 
     return good_msgs, warning_msgs, error_msgs
 
