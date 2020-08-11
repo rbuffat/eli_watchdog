@@ -213,12 +213,11 @@ async def check_tms(source, session: ClientSession):
             centroid = geom.centroid
 
         tms_url = source['properties']['url']
-        if not validators.url(tms_url.replace('{', '').replace('}', '')):
-            error_msgs.append("URL validation error: {}".format(tms_url))
         parameters = {}
 
         if '{apikey}' in tms_url:
-            return create_result(ResultStatus.WARNING, "Not possible to check, requires apikey.")
+            warning_msgs.append("Not possible to check URL, apikey is required.")
+            return good_msgs, warning_msgs, error_msgs
 
         if "{switch:" in tms_url:
             match = re.search(r'switch:?([^}]*)', tms_url)
@@ -605,7 +604,7 @@ async def process_source(filename, session: ClientSession):
             if age > 30:
                 result['imagery'] = create_result(ResultStatus.WARNING,
                                                   "Not checked due to age: {} years".format(age))
-        if not 'imagery' in result:
+        if 'imagery' not in result:
 
             if source['properties']['type'] == 'tms':
                 good_msgs, warning_msgs, error_msgs = await check_tms(source, session)
