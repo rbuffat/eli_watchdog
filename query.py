@@ -8,7 +8,7 @@ from io import StringIO
 import aiofiles
 import aiohttp
 import validators
-from shapely.geometry import shape, MultiPolygon
+from shapely.geometry import shape, MultiPolygon, Point
 import mercantile
 from owslib.wmts import WebMapTileService
 import warnings
@@ -109,12 +109,12 @@ def parse_wms(xml):
         This function aims at only parsing relevant layer metadata
     """
     wms = {}
+    # Remove prefixes to make parsing easier
+    # From https://stackoverflow.com/questions/13412496/python-elementtree-module-how-to-ignore-the-namespace-of-xml-files-to-locate-ma
     try:
         it = ET.iterparse(StringIO(xml))
         for _, el in it:
-            prefix, has_namespace, postfix = el.tag.partition('}')
-            if has_namespace:
-                el.tag = postfix
+            _, _, el.tag = el.tag.rpartition('}')
         root = it.root
     except:
         raise RuntimeError("Could not parse XML.")
@@ -206,14 +206,19 @@ async def check_tms(source, session: ClientSession):
     good_msgs = []
 
     try:
-        geom = shape(source['geometry'])
-        if isinstance(geom, MultiPolygon):
-            centroid = list(geom.geoms)[0].centroid
+        if 'geometry' in source and source['geometry'] is not None:
+            geom = shape(source['geometry'])
+            centroid = geom.representative_point()
         else:
-            centroid = geom.centroid
+            centroid = Point(0, 0)
 
         tms_url = source['properties']['url']
         parameters = {}
+
+        # {z} instead of {zoom}
+        if '{z}' in source['properties']['url']:
+            error_msgs.append('{z} found instead of {zoom} in tile url')
+            return
 
         if '{apikey}' in tms_url:
             warning_msgs.append("Not possible to check URL, apikey is required.")
@@ -324,13 +329,18 @@ async def check_wms(source, session: ClientSession):
     if not validators.url(wms_url.replace('{', '').replace('}', '')):
         error_msgs.append("URL validation error: {}".format(wms_url))
 
+    params = ["{proj}", "{bbox}", "{width}", "{height}"]
+    missingparams = [p for p in params if p not in wms_url]
+    if len(missingparams) > 0:
+        error_msgs.append("The following values are missing in the URL: {}".format(",".join(missingparams)))
+
     wms_args = {}
     u = urlparse(wms_url)
     url_parts = list(u)
     for k, v in parse_qsl(u.query):
         wms_args[k.lower()] = v
 
-    # Check mandatory WMS GetCapabilites parameters
+    # Check mandatory WMS GetMap parameters (Table 8, Section 7.3.2, WMS 1.3.0 specification)
     missing_request_parameters = set()
     for request_parameter in ['version', 'request', 'layers', 'bbox', 'width', 'height', 'format']:
         if request_parameter.lower() not in wms_args:
@@ -388,7 +398,6 @@ async def check_wms(source, session: ClientSession):
                 break
         except Exception as e:
             exceptions.append("WMS {}: Error: {}".format(wmsversion_str, str(e)))
-            print(wms_getcapabilites_url, str(e))
             continue
 
     if wms is None:
@@ -405,7 +414,7 @@ async def check_wms(source, session: ClientSession):
             if layer_name not in wms['layers']:
                 not_found_layers.append(layer_name)
         if len(not_found_layers) > 0:
-            error_msgs.append("Layers '{}' not present.".format(",".join(not_found_layers)))
+            error_msgs.append("Layers '{}' not advertised by WMS GetCapabilities request.".format(",".join(not_found_layers)))
 
         # Check styles
         if 'styles' in wms_args:
@@ -485,16 +494,13 @@ async def check_wms_endpoint(source, session: ClientSession):
 
     wms_url = source['properties']['url']
     try:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
-            response = await get_url(wms_url, session, with_text=True)
-            if response.exception is not None:
-                error_msgs.append(response.exception)
-                return good_msgs, warning_msgs, error_msgs
-            xml = response.text
-            wms = parse_wms(xml)
-            good_msgs.append("Good")
+        response = await get_url(wms_url, session, with_text=True)
+        if response.exception is not None:
+            error_msgs.append(response.exception)
+            return good_msgs, warning_msgs, error_msgs
+        xml = response.text
+        wms = parse_wms(xml)
+        good_msgs.append("Good")
     except Exception as e:
         error_msgs.append("Exception: {}".format(str(e)))
 
@@ -596,36 +602,34 @@ async def process_source(filename, session: ClientSession):
         result['privacy_policy_url'] = privacy_policy_url_status
 
     # Check imagery
-    if source['geometry'] is not None:
+    # Check imagery only for recent imagery
+    if 'end_date' in source['properties']:
+        age = datetime.date.today().year - int(source['properties']['end_date'].split("-")[0])
+        if age > 30:
+            result['imagery'] = create_result(ResultStatus.WARNING,
+                                              "Not checked due to age: {} years".format(age))
+    if 'imagery' not in result:
 
-        # Check imagery only for recent imagery
-        if 'end_date' in source['properties']:
-            age = datetime.date.today().year - int(source['properties']['end_date'].split("-")[0])
-            if age > 30:
-                result['imagery'] = create_result(ResultStatus.WARNING,
-                                                  "Not checked due to age: {} years".format(age))
-        if 'imagery' not in result:
+        if source['properties']['type'] == 'tms':
+            good_msgs, warning_msgs, error_msgs = await check_tms(source, session)
+        elif source['properties']['type'] == 'wms':
+            good_msgs, warning_msgs, error_msgs = await check_wms(source, session)
+        elif source['properties']['type'] == 'wms_endpoint':
+            good_msgs, warning_msgs, error_msgs = await check_wms_endpoint(source, session)
+        elif source['properties']['type'] == 'wmts':
+            good_msgs, warning_msgs, error_msgs = await check_wmts(source, session)
+        else:
+            good_msgs = error_msgs = []
+            warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
 
-            if source['properties']['type'] == 'tms':
-                good_msgs, warning_msgs, error_msgs = await check_tms(source, session)
-            elif source['properties']['type'] == 'wms':
-                good_msgs, warning_msgs, error_msgs = await check_wms(source, session)
-            elif source['properties']['type'] == 'wms_endpoint':
-                good_msgs, warning_msgs, error_msgs = await check_wms_endpoint(source, session)
-            elif source['properties']['type'] == 'wmts':
-                good_msgs, warning_msgs, error_msgs = await check_wmts(source, session)
-            else:
-                good_msgs = error_msgs = []
-                warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
-
-            messages = good_msgs + ["Error: {}".format(m) for m in error_msgs] + ["Warning: {}".format(m) for m in
-                                                                                  warning_msgs]
-            if len(error_msgs) > 0:
-                result['imagery'] = create_result(ResultStatus.ERROR, message=messages)
-            elif len(error_msgs) == 0 and len(warning_msgs) == 0:
-                result['imagery'] = create_result(ResultStatus.GOOD, message=messages)
-            else:
-                result['imagery'] = create_result(ResultStatus.WARNING, message=messages)
+        messages = good_msgs + ["Error: {}".format(m) for m in error_msgs] + ["Warning: {}".format(m) for m in
+                                                                              warning_msgs]
+        if len(error_msgs) > 0:
+            result['imagery'] = create_result(ResultStatus.ERROR, message=messages)
+        elif len(error_msgs) == 0 and len(warning_msgs) == 0:
+            result['imagery'] = create_result(ResultStatus.GOOD, message=messages)
+        else:
+            result['imagery'] = create_result(ResultStatus.WARNING, message=messages)
 
     if 'license_url' not in result:
         result['license_url'] = create_result(ResultStatus.WARNING, "Not checked")
