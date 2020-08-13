@@ -337,7 +337,7 @@ async def check_wms(source, session: ClientSession):
     wms_args = {}
     u = urlparse(wms_url)
     url_parts = list(u)
-    for k, v in parse_qsl(u.query):
+    for k, v in parse_qsl(u.query, keep_blank_values=True):
         wms_args[k.lower()] = v
 
     # Check mandatory WMS GetMap parameters (Table 8, Section 7.3.2, WMS 1.3.0 specification)
@@ -356,6 +356,7 @@ async def check_wms(source, session: ClientSession):
         error_msgs.append("Parameter '{}' is missing in url.".format(missing_request_parameters_str))
         return good_msgs, warning_msgs, error_msgs
     # Styles is mandatory according to the WMS specification, but some WMS servers seems not to care
+
     if 'styles' not in wms_args:
         warning_msgs.append("Parameter 'styles' is missing in url. 'STYLES=' can be used to request default style.")
 
@@ -582,6 +583,7 @@ async def process_source(filename, session: ClientSession):
         contents = await f.read()
         source = json.loads(contents)
 
+
     result['name'] = source['properties']['name']
     result['type'] = source['properties']['type']
 
@@ -622,8 +624,12 @@ async def process_source(filename, session: ClientSession):
             good_msgs = error_msgs = []
             warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
 
+        if 'category' not in source['properties']:
+            warning_msgs.append("Source has not category set.")
+
         messages = good_msgs + ["Error: {}".format(m) for m in error_msgs] + ["Warning: {}".format(m) for m in
                                                                               warning_msgs]
+
         if len(error_msgs) > 0:
             result['imagery'] = create_result(ResultStatus.ERROR, message=messages)
         elif len(error_msgs) == 0 and len(warning_msgs) == 0:
