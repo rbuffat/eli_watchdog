@@ -66,6 +66,9 @@ def render_overview(data):
         if d['privacy_policy_url']['status'] in {'good', 'warning'}:
             good['privacy_policy_url'][region] += 1
 
+        if len(d['category']) > 0:
+            good['category'][region] += 1
+
     def calc(cat, region_key):
         count = good[cat][region_key]
         tot = total[region_key]
@@ -90,6 +93,7 @@ def render_overview(data):
                 'imagery': calc('imagery', region),
                 'license_url': calc('license_url', region),
                 'privacy_policy_url': calc('privacy_policy_url', region),
+                'category': calc('category', region)
                 } for region in total]
 
     template = env.get_template('overview.html')

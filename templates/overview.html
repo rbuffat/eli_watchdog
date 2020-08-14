@@ -7,13 +7,13 @@
                     <th>Region</th>
                     <th>Imagery</th>
                     <th>License URL</th>
-                    <th>Privacy URL</th>
+                    <th>Privacy Policy URL</th>
+                    <th>Category</th>
                 </tr>
             </thead>
             <tbody>
             {% for region in regions | sort(attribute='name') %}
             <tr>
-                <!--                    <td>{{ region.name }}</td>-->
                 <td>
                     <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
                             data-target="#collapse-{{ region.regionid }}" aria-expanded="true"
@@ -24,6 +24,7 @@
                 <td class="table-{{ region.imagery.status }}">{{ region.imagery.percent }}</td>
                 <td class="table-{{ region.license_url.status }}">{{ region.license_url.percent }}</td>
                 <td class="table-{{ region.privacy_policy_url.status }}">{{ region.privacy_policy_url.percent }}</td>
+                <td class="table-{{ region.category.status }}">{{ region.category.percent }}</td>
                 </td>
             </tr>
             {% endfor %}
