@@ -121,7 +121,8 @@ def render_countries(data):
             'imagery': transform_result(d['imagery']),
             'license_url': transform_result(d['license_url']),
             'privacy_policy_url': transform_result(d['privacy_policy_url']),
-            'type': d['type']
+            'type': d['type'],
+            'category': d['category']
         })
     countries = [{'name': name,
                   'region': region,
