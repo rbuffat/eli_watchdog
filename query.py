@@ -286,12 +286,20 @@ async def check_tms(source, session: ClientSession):
 
         tested_str = ",".join(list(map(str, sorted(tested_zooms))))
         if len(zoom_failures) == 0 and len(zoom_success) > 0:
-            good_msgs.append("Zoom levels reachable. (Tested: {})".format(tested_str))
+            good_msgs.append("Zoom levels reachable. (Tested: {}) "
+                             "".format(tested_str))
         elif len(zoom_failures) > 0 and len(zoom_success) > 0:
             not_found_str = ",".join(list(map(str, sorted(zoom_failures))))
-            warning_msgs.append("Zoom level {} not reachable. (Tested: {})".format(not_found_str, tested_str))
+            warning_msgs.append("Zoom level {} not reachable. (Tested: {}) "
+                                "Tiles might not be present at tested location: {},{}".format(not_found_str,
+                                                                                              tested_str,
+                                                                                              centroid.x,
+                                                                                              centroid.y))
         else:
-            error_msgs.append("No zoom level reachable. (Tested: {})".format(tested_str))
+            error_msgs.append("No zoom level reachable. (Tested: {}) "
+                              "Tiles might not be present at tested location: {},{}".format(tested_str,
+                                                                                            centroid.x,
+                                                                                            centroid.y))
 
     except Exception as e:
         error_msgs.append("Exception: {}".format(str(e)))
