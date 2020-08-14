@@ -12,7 +12,7 @@
                     <th>Category</th>
                     <th>Imagery</th>
                     <th>License URL</th>
-                    <th>Privacy URL</th>
+                    <th>Privacy Policy URL</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +20,12 @@
                 <tr>
                     <td><a href="{{ source.url }}">{{ source.name }}</a></td>
                     <td>{{ source.type }}</td>
-                    <td>{{ source.category }}</td>
+                    
+                    {% if source.category|length > 0 %}
+                    <td class="table-success">{{ source.category }}</td>
+                    {% else %}
+                    <td class="table-danger">Missing category</td>
+                    {% endif %}
                     {% if source.imagery.status == 'good' %}
                     <td class="table-success">Good</td>
                     {% elif source.imagery.status == 'warning'%}

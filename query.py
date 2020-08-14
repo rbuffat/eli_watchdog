@@ -611,6 +611,12 @@ async def process_source(filename, session: ClientSession):
         privacy_policy_url_status = await test_url(privacy_policy_url, session)
         result['privacy_policy_url'] = privacy_policy_url_status
 
+    # Check category
+    if 'category' not in source['properties']:
+        result['category'] = ''
+    else:
+        result['category'] = source['properties']['category']
+
     # Check imagery
     # Check imagery only for recent imagery
     if 'end_date' in source['properties']:
@@ -631,13 +637,6 @@ async def process_source(filename, session: ClientSession):
         else:
             good_msgs = error_msgs = []
             warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
-
-        # TODO refactor
-        if 'category' not in source['properties']:
-            warning_msgs.append("Source has not category set.")
-            result['category'] = ''
-        else:
-            result['category'] = source['properties']['category']
 
         messages = good_msgs + ["Error: {}".format(m) for m in error_msgs] + ["Warning: {}".format(m) for m in
                                                                               warning_msgs]
