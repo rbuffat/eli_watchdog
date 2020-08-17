@@ -28,7 +28,13 @@
                     {% endif %}
 
                     {% if source.imagery.status == 'good' %}
-                    <td class="table-success">Good</td>
+                    <td class="table-success">
+                        {% if source.imagery.message|length == 0 %}
+                        Good
+                        {% else %}
+                        {{ source.imagery.message|join('<br />') }}
+                        {% endif %}
+                    </td>
                     {% elif source.imagery.status == 'warning'%}
                     <td class="table-warning">
                         {{ source.imagery.message|join('<br />') }}

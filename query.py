@@ -176,6 +176,16 @@ def parse_wms(xml):
         formats.append(es.text)
     wms['formats'] = formats
 
+    # Parse access constraints and fees
+    constraints = []
+    for es in root.findall(".//AccessConstraints"):
+        constraints.append(es.text)
+    fees = []
+    for es in root.findall(".//Fees"):
+        fees.append(es.text)
+    wms['Fees'] = fees
+    wms['AccessConstraints'] = constraints
+
     return wms
 
 
@@ -203,7 +213,7 @@ async def check_tms(source, session: ClientSession):
 
     error_msgs = []
     warning_msgs = []
-    good_msgs = []
+    info_msgs = []
 
     try:
         if 'geometry' in source and source['geometry'] is not None:
@@ -222,7 +232,7 @@ async def check_tms(source, session: ClientSession):
 
         if '{apikey}' in tms_url:
             warning_msgs.append("Not possible to check URL, apikey is required.")
-            return good_msgs, warning_msgs, error_msgs
+            return info_msgs, warning_msgs, error_msgs
 
         if "{switch:" in tms_url:
             match = re.search(r'switch:?([^}]*)', tms_url)
@@ -286,7 +296,7 @@ async def check_tms(source, session: ClientSession):
 
         tested_str = ",".join(list(map(str, sorted(tested_zooms))))
         if len(zoom_failures) == 0 and len(zoom_success) > 0:
-            good_msgs.append("Zoom levels reachable. (Tested: {}) "
+            info_msgs.append("Zoom levels reachable. (Tested: {}) "
                              "".format(tested_str))
         elif len(zoom_failures) > 0 and len(zoom_success) > 0:
             not_found_str = ",".join(list(map(str, sorted(zoom_failures))))
@@ -304,7 +314,7 @@ async def check_tms(source, session: ClientSession):
     except Exception as e:
         error_msgs.append("Exception: {}".format(str(e)))
 
-    return good_msgs, warning_msgs, error_msgs
+    return info_msgs, warning_msgs, error_msgs
 
 
 async def check_wms(source, session: ClientSession):
@@ -331,7 +341,7 @@ async def check_wms(source, session: ClientSession):
 
     error_msgs = []
     warning_msgs = []
-    good_msgs = []
+    info_msgs = []
 
     wms_url = source['properties']['url']
     if not validators.url(wms_url.replace('{', '').replace('}', '')):
@@ -362,7 +372,7 @@ async def check_wms(source, session: ClientSession):
 
     # Nothing more to do for esri rest api
     if is_esri:
-        return good_msgs, warning_msgs, error_msgs
+        return info_msgs, warning_msgs, error_msgs
 
     if 'version' in wms_args and wms_args['version'] == '1.3.0':
         if 'crs' not in wms_args:
@@ -373,7 +383,7 @@ async def check_wms(source, session: ClientSession):
     if len(missing_request_parameters) > 0:
         missing_request_parameters_str = ",".join(missing_request_parameters)
         error_msgs.append("Parameter '{}' is missing in url.".format(missing_request_parameters_str))
-        return good_msgs, warning_msgs, error_msgs
+        return info_msgs, warning_msgs, error_msgs
     # Styles is mandatory according to the WMS specification, but some WMS servers seems not to care
 
     if 'styles' not in wms_args:
@@ -423,7 +433,12 @@ async def check_wms(source, session: ClientSession):
     if wms is None:
         for msg in exceptions:
             error_msgs.append(msg)
-        return good_msgs, warning_msgs, error_msgs
+        return info_msgs, warning_msgs, error_msgs
+
+    for access_constraint in wms['AccessConstraints']:
+        info_msgs.append("WMS AccessConstraints: {}".format(access_constraint))
+    for fee in wms['Fees']:
+        info_msgs.append("WMS Fees: {}".format(fee))
 
     # Check layers
     if 'layers' in wms_args:
@@ -509,7 +524,7 @@ async def check_wms(source, session: ClientSession):
     #                             "the best choice. "
     #                             "(Server supports: '{}')".format(imagery_format, imagery_formats_str))
 
-    return good_msgs, warning_msgs, error_msgs
+    return info_msgs, warning_msgs, error_msgs
 
 
 async def check_wms_endpoint(source, session: ClientSession):
@@ -538,7 +553,7 @@ async def check_wms_endpoint(source, session: ClientSession):
 
     error_msgs = []
     warning_msgs = []
-    good_msgs = []
+    info_msgs = []
 
     wms_url = source['properties']['url']
 
@@ -568,15 +583,18 @@ async def check_wms_endpoint(source, session: ClientSession):
             response = await get_url(url, session, with_text=True)
             if response.exception is not None:
                 error_msgs.append(response.exception)
-                return good_msgs, warning_msgs, error_msgs
+                return info_msgs, warning_msgs, error_msgs
             xml = response.text
             wms = parse_wms(xml)
-            good_msgs.append("Good")
+            for access_constraint in wms['AccessConstraints']:
+                info_msgs.append("WMS AccessConstraints: {}".format(access_constraint))
+            for fee in wms['Fees']:
+                info_msgs.append("WMS Fees: {}".format(fee))
             break
         except Exception as e:
             error_msgs.append("Exception: {}".format(str(e)))
 
-    return good_msgs, warning_msgs, error_msgs
+    return info_msgs, warning_msgs, error_msgs
 
 
 async def check_wmts(source, session):
@@ -602,7 +620,7 @@ async def check_wmts(source, session):
     """
     error_msgs = []
     warning_msgs = []
-    good_msgs = []
+    info_msgs = []
 
     try:
         wmts_url = source['properties']['url']
@@ -611,15 +629,15 @@ async def check_wmts(source, session):
             response = await get_url(wmts_url, session, with_text=True)
             if response.exception is not None:
                 error_msgs.append(response.exception)
-                return good_msgs, warning_msgs, error_msgs
+                return info_msgs, warning_msgs, error_msgs
 
             xml = response.text
             wmts = WebMapTileService(wmts_url, xml=xml.encode('utf-8'))
-            good_msgs.append("Good")
+            info_msgs.append("Good")
     except Exception as e:
         error_msgs.append("Exception: {}".format(str(e)))
 
-    return good_msgs, warning_msgs, error_msgs
+    return info_msgs, warning_msgs, error_msgs
 
 
 async def process_source(filename, session: ClientSession):
@@ -689,19 +707,20 @@ async def process_source(filename, session: ClientSession):
     if 'imagery' not in result:
 
         if source['properties']['type'] == 'tms':
-            good_msgs, warning_msgs, error_msgs = await check_tms(source, session)
+            info_msgs, warning_msgs, error_msgs = await check_tms(source, session)
         elif source['properties']['type'] == 'wms':
-            good_msgs, warning_msgs, error_msgs = await check_wms(source, session)
+            info_msgs, warning_msgs, error_msgs = await check_wms(source, session)
         elif source['properties']['type'] == 'wms_endpoint':
-            good_msgs, warning_msgs, error_msgs = await check_wms_endpoint(source, session)
+            info_msgs, warning_msgs, error_msgs = await check_wms_endpoint(source, session)
         elif source['properties']['type'] == 'wmts':
-            good_msgs, warning_msgs, error_msgs = await check_wmts(source, session)
+            info_msgs, warning_msgs, error_msgs = await check_wmts(source, session)
         else:
-            good_msgs = error_msgs = []
+            info_msgs = error_msgs = []
             warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
 
-        messages = good_msgs + ["Error: {}".format(m) for m in error_msgs] + ["Warning: {}".format(m) for m in
-                                                                              warning_msgs]
+        messages = ["Error: {}".format(m) for m in error_msgs]
+        messages += ["Warning: {}".format(m) for m in warning_msgs]
+        messages += ["Info: {}".format(m) for m in info_msgs]
 
         if len(error_msgs) > 0:
             result['imagery'] = create_result(ResultStatus.ERROR, message=messages)
