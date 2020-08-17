@@ -447,7 +447,8 @@ async def check_wms(source, session: ClientSession):
                     error_msgs.append("Not the same number of styles and layers.")
                 else:
                     for layer_name, style in zip(layers, styles):
-                        if layer_name in wms['layers'] and style not in wms['layers'][layer_name]['Styles']:
+                        if (len(style) > 0 and not style == 'default' and layer_name in wms['layers'] and
+                                style not in wms['layers'][layer_name]['Styles']):
                             error_msgs.append("Layer '{}' does not support style '{}'".format(layer_name, style))
 
         # Check CRS
@@ -556,9 +557,9 @@ async def check_wms_endpoint(source, session: ClientSession):
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
         return urlunparse(url_parts)
 
-    try:
-        for wmsversion in [None, '1.3.0', '1.1.1', '1.1.0', '1.0.0']:
-            url = get_getcapabilitie_url(wms_version=None)
+    for wmsversion in [None, '1.3.0', '1.1.1', '1.1.0', '1.0.0']:
+        try:
+            url = get_getcapabilitie_url(wms_version=wmsversion)
             response = await get_url(url, session, with_text=True)
             if response.exception is not None:
                 error_msgs.append(response.exception)
@@ -567,8 +568,8 @@ async def check_wms_endpoint(source, session: ClientSession):
             wms = parse_wms(xml)
             good_msgs.append("Good")
             break
-    except Exception as e:
-        error_msgs.append("Exception: {}".format(str(e)))
+        except Exception as e:
+            error_msgs.append("Exception: {}".format(str(e)))
 
     return good_msgs, warning_msgs, error_msgs
 
