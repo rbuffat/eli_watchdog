@@ -465,8 +465,9 @@ async def check_wms(source, session: ClientSession):
                     if len(not_supported_crs) > 0:
                         supported_crs_str = ",".join(wms['layers'][layer_name]['CRS'])
                         not_supported_crs_str = ",".join(not_supported_crs)
-                        warning_msgs.append("CRS '{}' not in: {}".format(not_supported_crs_str,
-                                                                         supported_crs_str))
+                        warning_msgs.append("Layer '{}': CRS '{}' not in: {}".format(layer_name,
+                                                                                     not_supported_crs_str,
+                                                                                     supported_crs_str))
 
                     supported_but_not_included = set()
                     for crs in crs_should_included_if_available:
@@ -476,8 +477,8 @@ async def check_wms(source, session: ClientSession):
 
                     if len(supported_but_not_included) > 0:
                         supported_but_not_included_str = ','.join(supported_but_not_included)
-                        warning_msgs.append("CRS '{}' not included in available_projections but "
-                                            "supported by server.".format(supported_but_not_included_str))
+                        warning_msgs.append("Layer '{}': CRS '{}' not included in available_projections but "
+                                            "supported by server.".format(layer_name, supported_but_not_included_str))
 
     if wms_args['version'] < wms['version']:
         warning_msgs.append("Query requests WMS version '{}', server supports '{}'".format(wms_args['version'],
