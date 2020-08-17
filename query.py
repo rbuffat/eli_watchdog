@@ -379,7 +379,7 @@ async def check_wms(source, session: ClientSession):
     if 'styles' not in wms_args:
         warning_msgs.append("Parameter 'styles' is missing in url. 'STYLES=' can be used to request default style.")
 
-    def get_getcapabilitie_url(wms_version):
+    def get_getcapabilitie_url(wms_version=None):
 
         get_capabilities_args = {'service': 'WMS',
                                  'request': 'GetCapabilities'}
@@ -451,6 +451,7 @@ async def check_wms(source, session: ClientSession):
                             error_msgs.append("Layer '{}' does not support style '{}'".format(layer_name, style))
 
         # Check CRS
+        crs_should_included_if_available = {'EPSG:4326', 'EPSG:3857', 'CRS:84'}
         if 'available_projections' not in source['properties']:
             error_msgs.append("source is missing 'available_projections' element.")
         else:
@@ -466,6 +467,17 @@ async def check_wms(source, session: ClientSession):
                         not_supported_crs_str = ",".join(not_supported_crs)
                         warning_msgs.append("CRS '{}' not in: {}".format(not_supported_crs_str,
                                                                          supported_crs_str))
+
+                    supported_but_not_included = set()
+                    for crs in crs_should_included_if_available:
+                        if (crs not in source['properties']['available_projections'] and
+                                crs in wms['layers'][layer_name]['CRS']):
+                            supported_but_not_included.add(crs)
+
+                    if len(supported_but_not_included) > 0:
+                        supported_but_not_included_str = ','.join(supported_but_not_included)
+                        warning_msgs.append("CRS '{}' not included in available_projections but "
+                                            "supported by server.".format(supported_but_not_included_str))
 
     if wms_args['version'] < wms['version']:
         warning_msgs.append("Query requests WMS version '{}', server supports '{}'".format(wms_args['version'],
@@ -522,14 +534,38 @@ async def check_wms_endpoint(source, session: ClientSession):
     good_msgs = []
 
     wms_url = source['properties']['url']
+
+    wms_args = {}
+    u = urlparse(wms_url)
+    url_parts = list(u)
+    for k, v in parse_qsl(u.query, keep_blank_values=True):
+        wms_args[k.lower()] = v
+
+    def get_getcapabilitie_url(wms_version=None):
+
+        get_capabilities_args = {'service': 'WMS',
+                                 'request': 'GetCapabilities'}
+        if wms_version is not None:
+            get_capabilities_args['version'] = wms_version
+
+        # Some server only return capabilities when the map parameter is specified
+        if 'map' in wms_args:
+            get_capabilities_args['map'] = wms_args['map']
+
+        url_parts[4] = urlencode(list(get_capabilities_args.items()))
+        return urlunparse(url_parts)
+
     try:
-        response = await get_url(wms_url, session, with_text=True)
-        if response.exception is not None:
-            error_msgs.append(response.exception)
-            return good_msgs, warning_msgs, error_msgs
-        xml = response.text
-        wms = parse_wms(xml)
-        good_msgs.append("Good")
+        for wmsversion in [None, '1.3.0', '1.1.1', '1.1.0', '1.0.0']:
+            url = get_getcapabilitie_url(wms_version=None)
+            response = await get_url(url, session, with_text=True)
+            if response.exception is not None:
+                error_msgs.append(response.exception)
+                return good_msgs, warning_msgs, error_msgs
+            xml = response.text
+            wms = parse_wms(xml)
+            good_msgs.append("Good")
+            break
     except Exception as e:
         error_msgs.append("Exception: {}".format(str(e)))
 
