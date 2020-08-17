@@ -432,7 +432,12 @@ async def check_wms(source, session: ClientSession):
 
         for layer_name in layer_arg.split(","):
             if layer_name not in wms['layers']:
+                for wms_layer in wms['layers']:
+                    if layer_name.lower() == wms_layer.lower():
+                        warning_msgs.append("Layer '{}' is advertised by WMS server as '{}'".format(layer_name,
+                                                                                                    wms_layer))
                 not_found_layers.append(layer_name)
+
         if len(not_found_layers) > 0:
             error_msgs.append("Layers '{}' not advertised by WMS GetCapabilities request.".format(",".join(not_found_layers)))
 
