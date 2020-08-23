@@ -17,6 +17,10 @@ from aiohttp import ClientSession
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 import xml.etree.ElementTree as ET
 
+imagery_ignore = {
+    'SG-2018-WMS': 'WMS server does not advertise layer OP_SG (2020-8-23)'
+}
+
 
 class ResultStatus:
     GOOD = "good"
@@ -702,6 +706,7 @@ async def process_source(filename, session: ClientSession):
 
     result['name'] = source['properties']['name']
     result['type'] = source['properties']['type']
+    source_id = source['properties']['id']
 
     # Check licence url
     if 'license_url' not in source['properties']:
@@ -733,18 +738,21 @@ async def process_source(filename, session: ClientSession):
             result['imagery'] = create_result(ResultStatus.WARNING,
                                               "Not checked due to age: {} years".format(age))
     if 'imagery' not in result:
-
-        if source['properties']['type'] == 'tms':
-            info_msgs, warning_msgs, error_msgs = await check_tms(source, session)
-        elif source['properties']['type'] == 'wms':
-            info_msgs, warning_msgs, error_msgs = await check_wms(source, session)
-        elif source['properties']['type'] == 'wms_endpoint':
-            info_msgs, warning_msgs, error_msgs = await check_wms_endpoint(source, session)
-        elif source['properties']['type'] == 'wmts':
-            info_msgs, warning_msgs, error_msgs = await check_wmts(source, session)
-        else:
+        if source_id in imagery_ignore:
             info_msgs = error_msgs = []
-            warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
+            warning_msgs = ["Ignored: {}".format(imagery_ignore[source_id])]
+        else:
+            if source['properties']['type'] == 'tms':
+                info_msgs, warning_msgs, error_msgs = await check_tms(source, session)
+            elif source['properties']['type'] == 'wms':
+                info_msgs, warning_msgs, error_msgs = await check_wms(source, session)
+            elif source['properties']['type'] == 'wms_endpoint':
+                info_msgs, warning_msgs, error_msgs = await check_wms_endpoint(source, session)
+            elif source['properties']['type'] == 'wmts':
+                info_msgs, warning_msgs, error_msgs = await check_wmts(source, session)
+            else:
+                info_msgs = error_msgs = []
+                warning_msgs = ["{} is currently not checked.".format(source['properties']['type'])]
 
         messages = ["Error: {}".format(m) for m in error_msgs]
         messages += ["Warning: {}".format(m) for m in warning_msgs]
