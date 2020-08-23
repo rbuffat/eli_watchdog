@@ -1,57 +1,68 @@
 <div class="accordion" id="regions">
-  <div class="card">
-    <div class="card-header" id="heading-overview">
-      <h2 class="mb-0">
-        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-overview" aria-expanded="true" aria-controls="collapse-overview">
-          Overview
-        </button>
-      </h2>
+    <div class="card">
+        <div class="card-header" id="heading-overview">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                        data-target="#collapse-overview" aria-expanded="true" aria-controls="collapse-overview">
+                    Overview
+                </button>
+            </h2>
+        </div>
     </div>
-      <div class="card">
-    <div class="card-header" id="heading-broken-imagery">
-      <h2 class="mb-0">
-        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-broken-imagery" aria-expanded="true" aria-controls="collapse-broken-imagery">
-          Broken imagery
-        </button>
-      </h2>
-    </div>
-  </div>
-  
-  {% for region in regions %}
-  {% if region.countries|length > 0 %}
-  <div class="card">
-    <div class="card-header" id="heading-{{ region.name }}">
-      <h2 class="mb-0">
-        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}">
-          {{ region.name }}
-        </button>
-      </h2>
+    <div class="card">
+        <div class="card-header" id="heading-broken-imagery">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                        data-target="#collapse-broken-imagery" aria-expanded="true"
+                        aria-controls="collapse-broken-imagery">
+                    Broken imagery
+                </button>
+            </h2>
+        </div>
     </div>
 
-    <div id="collapse-{{ region.name }}" class="collapse" aria-labelledby="heading-{{ region.name }}" data-parent="#regions">
-      <div class="card-body">
-        <ul class="nav flex-column">
-          {% for country in region.countries %}
-          <li class="nav-item">
-            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ country.id }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ country.id }}">
-              {{ country.path }}
-            </button>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-  {% else %}
+    {% for region in regions %}
+    {% if region.countries|length > 0 %}
     <div class="card">
-    <div class="card-header" id="heading-{{ region.name }}">
-      <h2 class="mb-0">
-        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-{{ region.name }}-{{ region.name }}" aria-expanded="true" aria-controls="collapse-{{ region.name }}-{{ region.name }}">
-          {{ region.name }}
-        </button>
-      </h2>
+        <div class="card-header" id="heading-{{ region.name }}">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                        data-target="#collapse-{{ region.name }}" aria-expanded="true"
+                        aria-controls="collapse-{{ region.name }}">
+                    {{ region.name }}
+                </button>
+            </h2>
+        </div>
+
+        <div id="collapse-{{ region.name }}" class="collapse" aria-labelledby="heading-{{ region.name }}"
+             data-parent="#regions">
+            <div class="card-body">
+                <ul class="nav flex-column">
+                    {% for country in region.countries %}
+                    <li class="nav-item">
+                        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                                data-target="#collapse-{{ region.name }}-{{ country.id }}" aria-expanded="true"
+                                aria-controls="collapse-{{ region.name }}-{{ country.id }}">
+                            {{ country.path }}
+                        </button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
-  {% endif %}
-  {% endfor %}
+    {% else %}
+    <div class="card">
+        <div class="card-header" id="heading-{{ region.name }}">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                        data-target="#collapse-{{ region.name }}-{{ region.name }}" aria-expanded="true"
+                        aria-controls="collapse-{{ region.name }}-{{ region.name }}">
+                    {{ region.name }}
+                </button>
+            </h2>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
 </div>
