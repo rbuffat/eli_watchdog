@@ -52,7 +52,7 @@
                     </td>
                     {% else %}
                     <td class="table-danger">
-                        {{source.license_url.messagjoin('<br />')|e }}
+                        {{source.license_url.message|join('<br />')|e }}
                     </td>
                     {% endif %}
     
@@ -61,11 +61,11 @@
                     <td class="table-success">Good</td>
                     {% elif source.privacy_policy_url.status == 'warning'%}
                     <td class="table-warning">
-                        {{ source.privacy_policy_url.messagjoin('<br />')|e }}
+                        {{ source.privacy_policy_url.message|join('<br />')|e }}
                     </td>
                     {% else %}
                     <td class="table-danger">
-                        {{ source.privacy_policy_url.messagjoin('<br />')|e }}
+                        {{ source.privacy_policy_url.message|join('<br />')|e }}
                     </td>
                     {% endif %}
     
