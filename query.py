@@ -223,6 +223,14 @@ async def check_tms(source, session: ClientSession):
             centroid = Point(0, 0)
 
         tms_url = source['properties']['url']
+
+        def validate_url():
+            url = re.sub(r'switch:?([^}]*)', 'switch', tms_url).replace('{', '').replace('}', '')
+            return validators.url(url)
+
+        if not validate_url():
+            error_msgs.append("URL validation error: {}".format(tms_url))
+
         parameters = {}
 
         # {z} instead of {zoom}
@@ -344,8 +352,6 @@ async def check_wms(source, session: ClientSession):
     info_msgs = []
 
     wms_url = source['properties']['url']
-    if not validators.url(wms_url.replace('{', '').replace('}', '')):
-        error_msgs.append("URL validation error: {}".format(wms_url))
 
     params = ["{proj}", "{bbox}", "{width}", "{height}"]
     missingparams = [p for p in params if p not in wms_url]
@@ -357,6 +363,20 @@ async def check_wms(source, session: ClientSession):
     url_parts = list(u)
     for k, v in parse_qsl(u.query, keep_blank_values=True):
         wms_args[k.lower()] = v
+
+    def validate_wms_getmap_url():
+        """
+        Layers and styles can contain whitespaces. Ignore them here. They are checked against GetCapabilities later.
+        """
+        url_parts_without_layers = "&".join(["{}={}".format(key, value) for key, value in wms_args.items()
+                                             if key not in {'layers', 'styles'}])
+        parts = url_parts.copy()
+        parts[4] = url_parts_without_layers
+        url = urlunparse(parts).replace('{', '').replace('}', '')
+        return validators.url(url)
+
+    if not validate_wms_getmap_url():
+        error_msgs.append("URL validation error: {}".format(wms_url))
 
     # Check mandatory WMS GetMap parameters (Table 8, Section 7.3.2, WMS 1.3.0 specification)
     missing_request_parameters = set()
@@ -558,6 +578,9 @@ async def check_wms_endpoint(source, session: ClientSession):
 
     wms_url = source['properties']['url']
 
+    if not validators.url(wms_url):
+        error_msgs.append("URL validation error: {}".format(wms_url))
+
     wms_args = {}
     u = urlparse(wms_url)
     url_parts = list(u)
@@ -625,6 +648,10 @@ async def check_wmts(source, session):
 
     try:
         wmts_url = source['properties']['url']
+
+        if not validators.url(wmts_url):
+            error_msgs.append("URL validation error: {}".format(wmts_url))
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             response = await get_url(wmts_url, session, with_text=True)
