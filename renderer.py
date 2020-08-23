@@ -1,7 +1,7 @@
 import datetime
 import html
 from collections import defaultdict
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
@@ -21,7 +21,6 @@ def get_country_key(d):
 
 
 def render_menu(data):
-
     r = defaultdict(set)
     for d in data:
         country_key = get_country_key(d)
@@ -112,12 +111,13 @@ def render_countries(data):
             d['filename'])
 
         def transform_result(result):
+            r = result.copy()
             messages = result['message']
             if isinstance(messages, str):
                 messages = [messages]
             messages = [html.escape(msg) for msg in messages]
-            result['message'] = messages
-            return result
+            r['message'] = messages
+            return r
 
         collect[(country_key['region'], country_key['country'], " / ".join(d['directory']))].append({
             'name': d.get('name', 'Not available'),
@@ -136,14 +136,50 @@ def render_countries(data):
     return template.render(countries=countries)
 
 
+def render_broken_imagery(data):
+    template = env.get_template('broken_imagery_sources.html')
+
+    sources = []
+    for d in data:
+        if not d['imagery']['status'] == 'error':
+            continue
+
+        github_url = 'https://github.com/osmlab/editor-layer-index/tree/gh-pages/sources/{}/{}'.format(
+            "/".join(d['directory']),
+            d['filename'])
+
+        def transform_result(result):
+            r = result.copy()
+            messages = result['message']
+            if isinstance(messages, str):
+                messages = [messages]
+            messages = [html.escape(msg) for msg in messages]
+            r['message'] = messages
+            return r
+
+        name_prefix = " / ".join(d['directory'])
+        sources.append({
+            'name': name_prefix + " / " + d.get('name', 'Not available'),
+            'url': github_url,
+            'imagery': transform_result(d['imagery']),
+            'license_url': transform_result(d['license_url']),
+            'privacy_policy_url': transform_result(d['privacy_policy_url']),
+            'type': d['type'],
+            'category': d['category']
+        })
+
+    return template.render(sources=sources)
+
+
 def render(data):
-    data = {'menu': render_menu(data),
-            'countries': render_countries(data),
-            'overview': render_overview(data)
-            }
+    parts = {'menu': render_menu(data),
+             'countries': render_countries(data),
+             'overview': render_overview(data),
+             'broken_imagery': render_broken_imagery(data)
+             }
 
     template = env.get_template('main.html')
     template.globals['now'] = datetime.datetime.utcnow()
 
     with open("web/index.html", 'w') as f:
-        f.write(template.render(data=data))
+        f.write(template.render(data=parts))

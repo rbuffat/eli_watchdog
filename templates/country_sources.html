@@ -18,11 +18,11 @@
             <tbody>
             {% for source in country.sources | sort(attribute='name') %}
                 <tr>
-                    <td><a href="{{ source.url }}">{{ source.name }}</a></td>
-                    <td>{{ source.type }}</td>
+                    <td><a href="{{ source.url }}">{{ source.name|e }}</a></td>
+                    <td>{{ source.type|e }}</td>
                     
                     {% if source.category|length > 0 %}
-                    <td class="table-success">{{ source.category }}</td>
+                    <td class="table-success">{{ source.category|e }}</td>
                     {% else %}
                     <td class="table-danger">Missing category</td>
                     {% endif %}
