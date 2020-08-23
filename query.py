@@ -454,7 +454,8 @@ async def check_wms(source, session: ClientSession):
                 not_found_layers.append(layer_name)
 
         if len(not_found_layers) > 0:
-            error_msgs.append("Layers '{}' not advertised by WMS GetCapabilities request.".format(",".join(not_found_layers)))
+            error_msgs.append("Layers '{}' not advertised by WMS GetCapabilities request. "
+                              "In rare cases WMS server do not advertise layers.".format(",".join(not_found_layers)))
 
         # Check styles
         if 'styles' in wms_args:
