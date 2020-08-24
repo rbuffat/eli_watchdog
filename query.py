@@ -420,9 +420,10 @@ async def check_wms(source, session: ClientSession):
         if wms_version is not None:
             get_capabilities_args['version'] = wms_version
 
-        # Some server only return capabilities when the map parameter is specified
-        if 'map' in wms_args:
-            get_capabilities_args['map'] = wms_args['map']
+        # Keep extra arguments, such as map or key
+        for key in wms_args:
+            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format'}:
+                get_capabilities_args['map'] = wms_args[key]
 
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
         return urlunparse(url_parts)
@@ -598,9 +599,10 @@ async def check_wms_endpoint(source, session: ClientSession):
         if wms_version is not None:
             get_capabilities_args['version'] = wms_version
 
-        # Some server only return capabilities when the map parameter is specified
-        if 'map' in wms_args:
-            get_capabilities_args['map'] = wms_args['map']
+        # Keep extra arguments, such as map or key
+        for key in wms_args:
+            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format'}:
+                get_capabilities_args['map'] = wms_args[key]
 
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
         return urlunparse(url_parts)
