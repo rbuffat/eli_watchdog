@@ -422,8 +422,8 @@ async def check_wms(source, session: ClientSession):
 
         # Keep extra arguments, such as map or key
         for key in wms_args:
-            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format'}:
-                get_capabilities_args['map'] = wms_args[key]
+            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format', 'crs', 'srs'}:
+                get_capabilities_args[key] = wms_args[key]
 
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
         return urlunparse(url_parts)
@@ -601,7 +601,7 @@ async def check_wms_endpoint(source, session: ClientSession):
 
         # Keep extra arguments, such as map or key
         for key in wms_args:
-            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format'}:
+            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format', 'crs', 'srs'}:
                 get_capabilities_args['map'] = wms_args[key]
 
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
