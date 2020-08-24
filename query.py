@@ -746,6 +746,9 @@ async def process_source(filename, session: ClientSession):
         if source_id in imagery_ignore:
             info_msgs = error_msgs = []
             warning_msgs = ["Ignored: {}".format(imagery_ignore[source_id])]
+        elif "User-Agent" in source['properties']['url']:
+            info_msgs = error_msgs = []
+            warning_msgs = ["Not checked, URL includes User-Agent"]
         else:
             if source['properties']['type'] == 'tms':
                 info_msgs, warning_msgs, error_msgs = await check_tms(source, session)
