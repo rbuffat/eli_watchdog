@@ -22,6 +22,8 @@ imagery_ignore = {
     'Bedzin-PL-aerial_image': 'Imagery only accessible from a Polish IP address. (2020-8-24)',
     'Bedzin-PL-buildings': 'Imagery only accessible from a Polish IP address. (2020-8-24)',
     'Bedzin-PL-addresses': 'Imagery only accessible from a Polish IP address. (2020-8-24)',
+    'Ukraine-orto10000-2012': 'Works only from within Ukraine or with an Ukrainian proxy server. (2020-9-7)',
+    'UkraineKyiv2014DZK': 'Works only from within Ukraine or with an Ukrainian proxy server. (2020-9-7)'
 }
 
 
