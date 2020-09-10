@@ -9,6 +9,7 @@
                     <th>Source</th>
                     <th>Type</th>
                     <th>Category</th>
+                    <th>Days Broken</th>
                     <th>Imagery</th>
                     <th>License URL</th>
                     <th>Privacy Policy URL</th>
@@ -25,6 +26,8 @@
                     {% else %}
                     <td class="table-danger">Missing category</td>
                     {% endif %}
+                    
+                    <td class="table-danger">{{ source.days }}</td>
 
                     {% if source.imagery.status == 'good' %}
                     <td class="table-success">

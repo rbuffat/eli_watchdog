@@ -1,10 +1,15 @@
 import datetime
 import html
+import json
+import os
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import dateutil.parser
 
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
+
+broken_sources_db = "web/broken.json"
 
 
 def get_country_key(d):
@@ -139,10 +144,25 @@ def render_countries(data):
 def render_broken_imagery(data):
     template = env.get_template('broken_imagery_sources.html')
 
+    if os.path.exists(broken_sources_db):
+        with open(broken_sources_db) as f:
+            broken = json.load(f)
+    else:
+        broken = {}
+    broken_new = {}
+
     sources = []
     for d in data:
         if not d['imagery']['status'] == 'error':
             continue
+
+        source_id = d['id']
+        if source_id in broken:
+            broken_date = dateutil.parser.isoparse(broken[source_id]).date()
+            days = (datetime.date.today() - broken_date).days + 1
+        else:
+            days = 1
+            broken_new[source_id] = datetime.date.today().isoformat()
 
         github_url = 'https://github.com/osmlab/editor-layer-index/tree/gh-pages/sources/{}/{}'.format(
             "/".join(d['directory']),
@@ -165,8 +185,14 @@ def render_broken_imagery(data):
             'license_url': transform_result(d['license_url']),
             'privacy_policy_url': transform_result(d['privacy_policy_url']),
             'type': d['type'],
-            'category': d['category']
+            'category': d['category'],
+            'days': days
         })
+
+    if os.path.exists(broken_sources_db):
+        os.unlink(broken_sources_db)
+    with open(broken_sources_db, 'w') as f:
+        json.dump(broken_new, f, indent=4)
 
     return template.render(sources=sources)
 

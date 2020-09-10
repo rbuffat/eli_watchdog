@@ -718,6 +718,7 @@ async def process_source(filename, session: ClientSession):
     result['name'] = source['properties']['name']
     result['type'] = source['properties']['type']
     source_id = source['properties']['id']
+    result['id'] = source_id
 
     # Check licence url
     if 'license_url' not in source['properties']:
