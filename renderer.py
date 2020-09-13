@@ -147,7 +147,9 @@ def render_broken_imagery(data):
     if os.path.exists(broken_sources_db):
         with open(broken_sources_db) as f:
             broken = json.load(f)
+            print("Found {} previously broken sources".format(broken))
     else:
+        print("Path {} not found".format(broken_sources_db))
         broken = {}
     broken_new = {}
 
