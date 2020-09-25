@@ -515,15 +515,17 @@ async def check_wms(source, session: ClientSession):
         # Regardless of its projection, each layer should advertise an approximated bounding box in lon/lat.
         # See WMS 1.3.0 Specification Section 7.2.4.6.6 EX_GeographicBoundingBox
         if geom is not None and geom.is_valid:
+            max_outside = 0.0
             for layer_name in layers:
                 if layer_name in wms['layers']:
                     bbox = wms['layers'][layer_name]['BBOX']
                     geom_bbox = box(*bbox)
                     geom_outside_bbox = geom.difference(geom_bbox)
                     area_outside_bbox = geom_outside_bbox.area / geom.area * 100.0
-                    if area_outside_bbox > 15.0:
-                        error_msgs.append("Layer '{}': {}% of geometry is outside of the "
-                                          "layers bounding box.".format(layer_name, round(area_outside_bbox, 2)))
+                    max_outside = max(max_outside, area_outside_bbox)
+            if max_outside > 15.0:
+                error_msgs.append("Layer '{}': {}% of geometry is outside of the "
+                                  "layers bounding box.".format(layer_name, round(area_outside_bbox, 2)))
 
         # Check styles
         if 'styles' in wms_args:
