@@ -164,14 +164,19 @@ def parse_wms(xml):
                     if el is not None:
                         new_style[styletag] = el.text
                 new_layer["Styles"][new_style['Name']] = new_style
-        for tag in ['EX_GeographicBoundingBox']:
-            e = element.find("./{}".format(tag))
-            if e is not None:
-                bbox = [float(e.find("./{}".format(orient)).text) for orient in ['westBoundLongitude',
-                                                                                 'southBoundLatitude',
-                                                                                 'eastBoundLongitude',
-                                                                                 'northBoundLatitude']]
-                new_layer['BBOX'] = bbox
+        # WMS Version 1.3.0
+        e = element.find("./EX_GeographicBoundingBox")
+        if e is not None:
+            bbox = [float(e.find("./{}".format(orient)).text) for orient in ['westBoundLongitude',
+                                                                             'southBoundLatitude',
+                                                                             'eastBoundLongitude',
+                                                                             'northBoundLatitude']]
+            new_layer['BBOX'] = bbox
+        # WMS Version < 1.3.0
+        e = element.find("./LatLonBoundingBox")
+        if e is not None:
+            bbox = [float(e.attrib[orient]) for orient in ['minx', 'miny', 'maxx', 'maxy']]
+            new_layer['BBOX'] = bbox
 
         if 'Name' in new_layer:
             layers[new_layer['Name']] = new_layer
