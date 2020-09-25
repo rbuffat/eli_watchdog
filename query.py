@@ -511,13 +511,14 @@ async def check_wms(source, session: ClientSession):
         # See WMS 1.3.0 Specification Section 7.2.4.6.6 EX_GeographicBoundingBox
         if geom is not None and geom.is_valid:
             for layer_name in layers:
-                bbox = wms['layers'][layer_name]['BBOX']
-                geom_bbox = box(*bbox)
-                geom_outside_bbox = geom.difference(geom_bbox)
-                area_outside_bbox = geom_outside_bbox.area / geom.area * 100.0
-                if area_outside_bbox > 25.0:
-                    error_msgs.append("Layer '{}': {}% of geometry is outside of the "
-                                      "layers bounding box.".format(layer_name, round(area_outside_bbox, 2)))
+                if layer_name in wms['layers']:
+                    bbox = wms['layers'][layer_name]['BBOX']
+                    geom_bbox = box(*bbox)
+                    geom_outside_bbox = geom.difference(geom_bbox)
+                    area_outside_bbox = geom_outside_bbox.area / geom.area * 100.0
+                    if area_outside_bbox > 15.0:
+                        error_msgs.append("Layer '{}': {}% of geometry is outside of the "
+                                          "layers bounding box.".format(layer_name, round(area_outside_bbox, 2)))
 
         # Check styles
         if 'styles' in wms_args:
