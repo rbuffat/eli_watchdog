@@ -8,7 +8,7 @@ from io import StringIO
 import aiofiles
 import aiohttp
 import validators
-from shapely.geometry import shape, MultiPolygon, Point
+from shapely.geometry import shape, MultiPolygon, Point, box
 import mercantile
 from owslib.wmts import WebMapTileService
 import warnings
@@ -142,9 +142,10 @@ def parse_wms(xml):
 
     layers = {}
 
-    def parse_layer(element, crs=set(), styles={}):
+    def parse_layer(element, crs=set(), styles={}, bbox=None):
         new_layer = {'CRS': crs,
-                     'Styles': {}}
+                     'Styles': {},
+                     'BBOX': bbox}
         new_layer['Styles'].update(styles)
         for tag in ['Name', 'Title', 'Abstract']:
             e = element.find("./{}".format(tag))
@@ -163,6 +164,14 @@ def parse_wms(xml):
                     if el is not None:
                         new_style[styletag] = el.text
                 new_layer["Styles"][new_style['Name']] = new_style
+        for tag in ['EX_GeographicBoundingBox']:
+            e = element.find("./{}".format(tag))
+            if e is not None:
+                bbox = [float(e.find("./{}".format(orient)).text) for orient in ['westBoundLongitude',
+                                                                                 'southBoundLatitude',
+                                                                                 'eastBoundLongitude',
+                                                                                 'northBoundLatitude']]
+                new_layer['BBOX'] = bbox
 
         if 'Name' in new_layer:
             layers[new_layer['Name']] = new_layer
@@ -170,7 +179,8 @@ def parse_wms(xml):
         for sl in element.findall("./Layer"):
             parse_layer(sl,
                         new_layer['CRS'].copy(),
-                        new_layer['Styles'])
+                        new_layer['Styles'],
+                        new_layer['BBOX'])
 
     # Find child layers. CRS and Styles are inherited from parent
     top_layers = root.findall(".//Capability/Layer")
@@ -431,7 +441,7 @@ async def check_wms(source, session: ClientSession):
 
         # Keep extra arguments, such as map or key
         for key in wms_args:
-            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format', 'crs', 'srs'}:
+            if key not in {'version', 'request', 'layers', 'bbox', 'width', 'height', 'format', 'crs', 'srs', 'styles'}:
                 get_capabilities_args[key] = wms_args[key]
 
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
@@ -474,11 +484,16 @@ async def check_wms(source, session: ClientSession):
     for fee in wms['Fees']:
         info_msgs.append("WMS Fees: {}".format(fee))
 
+    if source['geometry'] is None:
+        geom = None
+    else:
+        geom = shape(source['geometry'])
+
     # Check layers
     if 'layers' in wms_args:
         layer_arg = wms_args['layers']
         not_found_layers = []
-
+        layers = layer_arg.split(',')
         for layer_name in layer_arg.split(","):
             if layer_name not in wms['layers']:
                 for wms_layer in wms['layers']:
@@ -491,9 +506,21 @@ async def check_wms(source, session: ClientSession):
             error_msgs.append("Layers '{}' not advertised by WMS GetCapabilities request. "
                               "In rare cases WMS server do not advertise layers.".format(",".join(not_found_layers)))
 
+        # Check source geometry against layer bounding box
+        # Regardless of its projection, each layer should advertise an approximated bounding box in lon/lat.
+        # See WMS 1.3.0 Specification Section 7.2.4.6.6 EX_GeographicBoundingBox
+        if geom is not None and geom.is_valid:
+            for layer_name in layers:
+                bbox = wms['layers'][layer_name]['BBOX']
+                geom_bbox = box(*bbox)
+                geom_outside_bbox = geom.difference(geom_bbox)
+                area_outside_bbox = geom_outside_bbox.area / geom.area * 100.0
+                if area_outside_bbox > 25.0:
+                    error_msgs.append("Layer '{}': {}% of geometry is outside of the "
+                                      "layers bounding box.".format(layer_name, round(area_outside_bbox, 2)))
+
         # Check styles
         if 'styles' in wms_args:
-            layers = layer_arg.split(',')
             style = wms_args['styles']
             # default style needs not to be advertised by the server
             if not (style == 'default' or style == '' or style == ',' * len(layers)):
