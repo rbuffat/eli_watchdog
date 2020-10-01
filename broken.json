@@ -68,6 +68,8 @@
     "Katowice-aerial_image": "2020-09-14",
     "Swietochlowice-2008": "2020-09-30",
     "Solothurn-sogis2018-dtm-wms": "2020-09-14",
+    "Bern-dsm-hillshade-2015": "2020-10-01",
+    "Bern-dtm-hillshade-2015": "2020-10-01",
     "Geneve-dtm-2014": "2020-09-25",
     "South-Tyrol-Orthofoto2011-20cm": "2020-09-14",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
@@ -92,8 +94,6 @@
     "Geobase_Hydrography_French": "2020-09-14",
     "US_Forest_Service_roads_overlay": "2020-09-14",
     "orthos.dhses.ny.gov_latest": "2020-09-25",
-    "san_antonio_river_2016_wms": "2020-09-25",
-    "georgetown_2016_wms": "2020-09-25",
     "South_Africa-CapeTown-Aerial-2017": "2020-09-14",
     "South_Africa-CapeTown-Aerial-2018": "2020-09-14"
 }
