@@ -523,9 +523,13 @@ async def check_wms(source, session: ClientSession):
                     geom_outside_bbox = geom.difference(geom_bbox)
                     area_outside_bbox = geom_outside_bbox.area / geom.area * 100.0
                     max_outside = max(max_outside, area_outside_bbox)
-            if max_outside > 15.0:
-                error_msgs.append("Layer '{}': {}% of geometry is outside of the "
-                                  "layers bounding box.".format(layer_name, round(area_outside_bbox, 2)))
+
+            if max_outside > 100.0:
+                error_msgs.append("{}% of geometry is outside of the layers "
+                                  "bounding box.".format(round(area_outside_bbox, 2)))
+            elif max_outside > 15.0:
+                warning_msgs.append("{}% of geometry is outside of the layers "
+                                    "bounding box.".format(round(area_outside_bbox, 2)))
 
         # Check styles
         if 'styles' in wms_args:
