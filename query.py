@@ -47,7 +47,17 @@ domain_locks = {}
 domain_lock = asyncio.Lock()
 
 
-async def get_url(url: str, session: ClientSession, with_text=False):
+def get_http_headers(source):
+    """ Extract http headers from source"""
+    headers = {}
+    if 'custom-http-headers' in source['properties']:
+        key = source['properties']['custom-http-headers']['header-name']
+        value = source['properties']['custom-http-headers']['header-value']
+        headers[key] = value
+    return headers
+
+
+async def get_url(url: str, session: ClientSession, with_text=False, headers=None):
     """ Ensure that only one request is sent to a domain at one point in time and that the same url is not
     queried more than once.
     """
@@ -63,8 +73,8 @@ async def get_url(url: str, session: ClientSession, with_text=False):
     async with lock:
         if url not in response_cache:
             try:
-                print("GET {}".format(url))
-                async with session.request(method="GET", url=url, ssl=False) as response:
+                print("GET {}".format(url), headers)
+                async with session.request(method="GET", url=url, ssl=False, headers=headers) as response:
                     status = response.status
                     if with_text:
                         text = await response.text()
@@ -82,7 +92,7 @@ async def get_url(url: str, session: ClientSession, with_text=False):
         return response_cache[url]
 
 
-async def test_url(url: str, session: ClientSession, **kwargs):
+async def test_url(url: str, session: ClientSession, headers: dict = None):
     """
     Test if a url is reachable
 
@@ -92,14 +102,15 @@ async def test_url(url: str, session: ClientSession, **kwargs):
         Url to test
     session: ClientSession
         aiohttp ClientSession object
-    kwargs: kwargs
+    headers: dict
+        custom http headers
 
     Returns
     -------
     dict:
         Result dict created by create_result()
     """
-    resp = await get_url(url, session)
+    resp = await get_url(url, session, headers)
     if resp.exception is not None:
         return create_result(ResultStatus.ERROR, resp.exception)
     else:
@@ -240,6 +251,8 @@ async def check_tms(source, session: ClientSession):
     warning_msgs = []
     info_msgs = []
 
+    headers = get_http_headers(source)
+
     try:
         if 'geometry' in source and source['geometry'] is not None:
             geom = shape(source['geometry'])
@@ -301,7 +314,7 @@ async def check_tms(source, session: ClientSession):
             parameters['zoom'] = zoom
             query_url = query_url.format(**parameters)
             await asyncio.sleep(0.5)
-            tms_url_status = await test_url(query_url, session)
+            tms_url_status = await test_url(query_url, session, headers)
             if tms_url_status['status'] == ResultStatus.GOOD:
                 zoom_success.append(zoom)
                 return True
@@ -377,6 +390,7 @@ async def check_wms(source, session: ClientSession):
     info_msgs = []
 
     wms_url = source['properties']['url']
+    headers = get_http_headers(source)
 
     params = ["{proj}", "{bbox}", "{width}", "{height}"]
     missingparams = [p for p in params if p not in wms_url]
@@ -468,7 +482,7 @@ async def check_wms(source, session: ClientSession):
         try:
             wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
 
-            resp = await get_url(wms_getcapabilites_url, session, with_text=True)
+            resp = await get_url(wms_getcapabilites_url, session, with_text=True, headers=headers)
             if resp.exception is not None:
                 exceptions.append("WMS {}: {}".format(wmsversion, resp.exception))
                 continue
@@ -631,6 +645,7 @@ async def check_wms_endpoint(source, session: ClientSession):
     info_msgs = []
 
     wms_url = source['properties']['url']
+    headers = get_http_headers(source)
 
     if not validators.url(wms_url):
         error_msgs.append("URL validation error: {}".format(wms_url))
@@ -659,7 +674,7 @@ async def check_wms_endpoint(source, session: ClientSession):
     for wmsversion in [None, '1.3.0', '1.1.1', '1.1.0', '1.0.0']:
         try:
             url = get_getcapabilitie_url(wms_version=wmsversion)
-            response = await get_url(url, session, with_text=True)
+            response = await get_url(url, session, with_text=True, headers=headers)
             if response.exception is not None:
                 error_msgs.append(response.exception)
                 return info_msgs, warning_msgs, error_msgs
@@ -703,13 +718,14 @@ async def check_wmts(source, session):
 
     try:
         wmts_url = source['properties']['url']
+        headers = get_http_headers(source)
 
         if not validators.url(wmts_url):
             error_msgs.append("URL validation error: {}".format(wmts_url))
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            response = await get_url(wmts_url, session, with_text=True)
+            response = await get_url(wmts_url, session, with_text=True, headers=headers)
             if response.exception is not None:
                 error_msgs.append(response.exception)
                 return info_msgs, warning_msgs, error_msgs
