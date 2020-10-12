@@ -61,8 +61,16 @@
     "poznan-ortofotomapa2014": "2020-09-14",
     "geovekst-nib-historic": "2020-09-14",
     "riksantikvaren-kulturminner": "2020-09-14",
+    "Berlin-2016-infrared": "2020-10-12",
+    "Berlin-2017": "2020-10-12",
+    "Berlin-2018": "2020-10-12",
     "hamburg-20cm": "2020-09-14",
+    "Berlin-2014": "2020-10-12",
+    "Berlin-2019": "2020-10-12",
+    "Berlin-2016": "2020-10-12",
+    "Berlin-2015": "2020-10-12",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
+    "ORT10LT": "2020-10-12",
     "CRAIG-Auvergne-2016": "2020-09-14",
     "CRAIG-Auvergne-2013": "2020-09-14",
     "BANO": "2020-09-14",
@@ -86,6 +94,5 @@
     "US_Forest_Service_roads_overlay": "2020-09-14",
     "Geobase_Hydrography_French": "2020-09-14",
     "QLDMap_Topo": "2020-09-14",
-    "QLDMap_Lite": "2020-09-14",
-    "MainRoadsWA_Road_Hierarchy": "2020-10-10"
+    "QLDMap_Lite": "2020-09-14"
 }
