@@ -163,9 +163,6 @@ def render_broken_imagery(data):
             broken_date = dateutil.parser.isoparse(broken[source_id]).date()
             days = str((datetime.date.today() - broken_date).days + 1)
             broken_new[source_id] = broken[source_id]
-            # Starting date
-            if broken[source_id] == "2020-09-14":
-                days = ">"+days
         else:
             days = "1"
             broken_new[source_id] = datetime.date.today().isoformat()
