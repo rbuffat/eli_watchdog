@@ -77,7 +77,10 @@ async def get_url(url: str, session: ClientSession, with_text=False, headers=Non
                 async with session.request(method="GET", url=url, ssl=False, headers=headers) as response:
                     status = response.status
                     if with_text:
-                        text = await response.text()
+                        try:
+                            text = await response.text()
+                        except:
+                            text = await response.read()
                         response_cache[url] = RequestResult(status=status, text=text)
                     else:
                         response_cache[url] = RequestResult(status=status)
@@ -487,6 +490,15 @@ async def check_wms(source, session: ClientSession):
                 exceptions.append("WMS {}: {}".format(wmsversion, resp.exception))
                 continue
             xml = resp.text
+            if isinstance(xml, bytes):
+                # Parse xml encoding to decode
+                try:
+                    xml_ignored = xml.decode(errors='ignore')
+                    str_encoding = re.search("encoding=\"(.*?)\"", xml_ignored).group(1)
+                    xml = xml.decode(encoding=str_encoding)
+                except Exception as e:
+                    raise RuntimeError("Could not parse encoding: {}".format(str(e)))
+
             wms = parse_wms(xml)
             if wms is not None:
                 break
