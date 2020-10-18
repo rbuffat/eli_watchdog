@@ -113,15 +113,12 @@ async def test_url(url: str, session: ClientSession, headers: dict = None):
     dict:
         Result dict created by create_result()
     """
-    resp = await get_url(url, session, with_text=True, headers=headers)
+    resp = await get_url(url, session, headers=headers)
     if resp.exception is not None:
         return create_result(ResultStatus.ERROR, resp.exception)
     else:
         status_code = resp[0]
         if status_code == 200:
-            status = ResultStatus.GOOD
-        # Some server retrun error 404 but still html
-        elif status_code == 404 and "html" in resp.text:
             status = ResultStatus.GOOD
         else:
             status = ResultStatus.ERROR
