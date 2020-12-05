@@ -19,9 +19,6 @@
     "Soskut_Pusztazamor_Tarnok_Diosd_orto_2017": "2020-09-14",
     "osm-hu-ortho": "2020-09-14",
     "OpenStreetMap-turistautak": "2020-10-18",
-    "Geolittoral-Orthophotos2000": "2020-12-04",
-    "GeolittoralV2-Orthophotos": "2020-12-04",
-    "Geolittoral-Sentiers": "2020-12-04",
     "mainzlatestaerialimagery": "2020-10-23",
     "hamburg-20cm": "2020-09-14",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
@@ -35,11 +32,11 @@
     "openlabs-geoportal-tirana": "2020-11-14",
     "geoimage.at": "2020-11-06",
     "OS-OpenData_Locator": "2020-09-14",
+    "Sicily-ATA2007": "2020-12-05",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
     "South-Tyrol-Orthofoto2011-20cm": "2020-09-14",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "PrahaIPRlatestorthophoto": "2020-11-28",
-    "riksantikvaren-kulturminner": "2020-12-04",
     "US_Forest_Service_roads_overlay": "2020-09-14",
     "US-TIGER-Roads-2014": "2020-11-17",
     "orthos.dhses.ny.gov_latest": "2020-10-17",
@@ -59,5 +56,6 @@
     "GeoPortal_DF_2018": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
-    "IBGE_BC250_Rios_Drenagem": "2020-09-14"
+    "IBGE_BC250_Rios_Drenagem": "2020-09-14",
+    "openpt_map": "2020-12-05"
 }
