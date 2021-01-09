@@ -1,6 +1,7 @@
 {
     "US-TIGER-Roads-2014": "2020-11-17",
     "orthos.dhses.ny.gov_latest": "2020-10-17",
+    "finds.jp_KBN_2500": "2021-01-09",
     "GeoPortal_DF_2018": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
@@ -24,7 +25,9 @@
     "osmse-ekonomiska": "2020-09-14",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "PrahaIPRlatestorthophoto": "2020-11-28",
-    "riksantikvaren-kulturminner": "2021-01-08",
+    "GeolittoralV2-Orthophotos": "2021-01-09",
+    "Geolittoral-Sentiers": "2021-01-09",
+    "Geolittoral-Orthophotos2000": "2021-01-09",
     "ORTOFOTO_V1": "2020-12-30",
     "osm-hu-ortho": "2020-09-14",
     "OpenStreetMap-turistautak": "2020-10-18",
