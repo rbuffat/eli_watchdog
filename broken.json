@@ -1,6 +1,7 @@
 {
     "orthos.dhses.ny.gov_latest": "2020-10-17",
     "drone-imagery-2016": "2021-01-21",
+    "openpt_map": "2021-02-05",
     "ign-topografico-wms": "2021-02-01",
     "ign-posadas": "2021-02-01",
     "Mapa-Educativo-wms": "2020-09-14",
@@ -21,10 +22,6 @@
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
     "IBGE_BC250_Terra_Indegina": "2020-09-14",
     "hamburg-20cm": "2020-09-14",
-    "Frankfurt-am-Main-2016": "2021-01-26",
-    "Frankfurt-am-Main-2017": "2021-01-26",
-    "nrw_ortho_wms": "2021-02-04",
-    "nrw_dtm_wms": "2021-02-04",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
     "OS-OpenData_Locator": "2020-09-14",
     "OpenStreetMap-turistautak": "2020-10-18",
@@ -64,6 +61,7 @@
     "GeolittoralV2-Orthophotos": "2021-02-04",
     "Geolittoral-Orthophotos2000": "2021-02-04",
     "Geolittoral-Sentiers": "2021-02-04",
+    "ORTOS_DGT_2014_15": "2021-02-05",
     "gaza_pleiades_20140706": "2021-01-21",
     "gaza_pleiades_20140706_nir": "2021-01-21"
 }
