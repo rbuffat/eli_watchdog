@@ -663,6 +663,9 @@ async def check_wms(source, session: ClientSession):
                 if layer_name in wms["layers"]:
                     not_supported_crs = set()
                     for crs in source["properties"]["available_projections"]:
+                        # WMS sync bot checks if these projections are supported despite not advertised
+                        if crs in {"EPSG:4326", "EPSG:3857"}:
+                            continue
                         if crs.upper() not in wms["layers"][layer_name]["CRS"]:
                             not_supported_crs.add(crs)
 
