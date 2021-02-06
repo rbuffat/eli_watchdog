@@ -505,12 +505,11 @@ async def check_wms(source, session: ClientSession):
         )
 
     def get_getcapabilitie_url(wms_version=None):
-
         get_capabilities_args = {"service": "WMS", "request": "GetCapabilities"}
         if wms_version is not None:
             get_capabilities_args["version"] = wms_version
 
-        # Keep extra arguments, such as map or key
+        # Drop all wms getmap parameters, keep all extra arguments (e.g. such as map or key)
         for key in wms_args:
             if key not in {
                 "version",
@@ -523,9 +522,12 @@ async def check_wms(source, session: ClientSession):
                 "crs",
                 "srs",
                 "styles",
+                "transparent",
+                "dpi",
+                "map_resolution",
+                "format_options",
             }:
                 get_capabilities_args[key] = wms_args[key]
-
         url_parts[4] = urlencode(list(get_capabilities_args.items()))
         return urlunparse(url_parts)
 
