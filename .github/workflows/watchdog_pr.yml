@@ -1,6 +1,6 @@
-name: ELI Watchdog PR
+name: ELI Watchdog Manual
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   watchdog:
