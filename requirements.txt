@@ -3,5 +3,5 @@ mercantile==1.1.5
 owslib==0.20.0
 jinja2==2.11.2
 aiofiles==0.5.0
-aiohttp[speedups]==3.6.2
+aiohttp[speedups]==3.7.4.post0
 validators==0.17.1
