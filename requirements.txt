@@ -1,4 +1,4 @@
-shapely==1.7.0
+shapely==1.7.1
 mercantile==1.1.6
 owslib==0.23.0
 jinja2==2.11.3
