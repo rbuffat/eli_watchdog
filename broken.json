@@ -1,6 +1,5 @@
 {
     "drone-imagery-2016": "2021-01-21",
-    "USDA-NAIP": "2021-05-01",
     "Minnesota-Composite-Image-Service": "2021-03-12",
     "orthos.dhses.ny.gov_latest": "2020-10-17",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
@@ -21,7 +20,6 @@
     "lubaczowski-buildings": "2020-09-14",
     "Lodz-buildings": "2020-09-14",
     "Siemianowice_Slaskie-buildings": "2020-09-14",
-    "Bytom-2014": "2021-04-29",
     "poznan-ortofotomapa2014": "2020-09-14",
     "Lodz-2015": "2020-09-14",
     "osm-hu-ortho": "2020-09-14",
