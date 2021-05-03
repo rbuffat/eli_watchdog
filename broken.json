@@ -1,7 +1,6 @@
 {
     "drone-imagery-2016": "2021-01-21",
     "Minnesota-Composite-Image-Service": "2021-03-12",
-    "orthos.dhses.ny.gov_latest": "2020-10-17",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "openpt_map": "2021-02-05",
     "gaza_pleiades_20140706_nir": "2021-01-21",
@@ -31,9 +30,12 @@
     "MoldovaMap-2020_Ortofoto_2016_RM": "2021-04-21",
     "MoldovaMap-2020_ortofoto_moldova_centru": "2021-04-21",
     "OS-OpenData_Locator": "2020-09-14",
-    "geoimage.at": "2020-11-06",
+    "GeolittoralV2-Orthophotos": "2021-05-03",
+    "Geolittoral-Sentiers": "2021-05-03",
+    "Geolittoral-Orthophotos2000": "2021-05-03",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
+    "Stuttgart-latest": "2021-05-03",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
     "Lombardia-Italy-CTR-DBT": "2020-09-14"
 }
