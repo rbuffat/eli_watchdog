@@ -1,5 +1,4 @@
 {
-    "Sicily-ATA2007": "2021-05-25",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
     "Siemianowice_Slaskie-buildings": "2020-09-14",
     "Bytom-buildings": "2021-05-05",
@@ -34,12 +33,9 @@
     "BDGEx_ctm_multi": "2021-04-01",
     "rio2013": "2021-02-19",
     "IBGE_BC250_Rios_Drenagem": "2020-09-14",
-    "rio2015": "2021-05-25",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
-    "Israel_Hiking": "2021-05-25",
-    "Israel_MTB": "2021-05-25",
     "Minnesota-Composite-Image-Service": "2021-03-12",
     "drone-imagery-2016": "2021-01-21"
 }
