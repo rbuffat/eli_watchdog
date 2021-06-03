@@ -4,7 +4,6 @@
     "Bytom-buildings": "2021-05-05",
     "lubaczowski-buildings": "2020-09-14",
     "Bytom-2012": "2021-05-05",
-    "debicki-buildings": "2021-06-01",
     "Lodz-buildings": "2020-09-14",
     "poznan-ortofotomapa2014": "2020-09-14",
     "Lodz-2015": "2020-09-14",
@@ -29,6 +28,8 @@
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "OS-OpenData_Locator": "2020-09-14",
+    "Bern-dsm-hillshade-2015": "2021-06-03",
+    "Bern-dtm-hillshade-2015": "2021-06-03",
     "ORTOS_DGRF_2004_06": "2021-03-06",
     "openpt_map": "2021-02-05",
     "londrina2011": "2020-09-14",
@@ -44,7 +45,7 @@
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
-    "USDA-NAIP": "2021-05-31",
     "Minnesota-Composite-Image-Service": "2021-03-12",
+    "NC-US": "2021-06-03",
     "drone-imagery-2016": "2021-01-21"
 }
