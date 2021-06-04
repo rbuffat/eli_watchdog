@@ -50,7 +50,7 @@ def create_github_issue(
 
     try:
         # Github Settings -> Developer Settings -> Personal access tokens -> Enable repo / public_repo scope
-        pa_token = os.environ("PA_TOKEN")
+        pa_token = os.environ["PA_TOKEN"]
         g = Github(pa_token)
         repo = g.get_repo(GITHUB_REPO)
 
