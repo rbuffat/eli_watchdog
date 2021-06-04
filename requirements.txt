@@ -5,3 +5,4 @@ jinja2==2.11.3
 aiofiles==0.6.0
 aiohttp[speedups]==3.7.4.post0
 validators==0.18.2
+PyGithub==1.55
