@@ -51,6 +51,7 @@ def create_github_issue(
     try:
         # Github Settings -> Developer Settings -> Personal access tokens -> Enable repo / public_repo scope
         pa_token = os.environ["PA_TOKEN"]
+        print(PA_TOKEN, len(pa_token))
         g = Github(pa_token)
         repo = g.get_repo(GITHUB_REPO)
 
@@ -65,7 +66,7 @@ def create_github_issue(
             f"{reason}",
             "",
             "CC contributors to this imagery:",
-            f"{', '.join(contributors)}",
+            f"{', '.join([f'{contributor}' for contributor in contributors])}",
         ]
         body = "\n".join(body_lines)
 
