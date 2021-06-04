@@ -33,6 +33,8 @@ jobs:
           cat web/broken.json
 
       - name: Run Watchdog
+        env:
+          PA_TOKEN: ${{ secrets.PA_TOKEN }}
         run: |
           python watchdog.py editor-layer-index/sources
 
