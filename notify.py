@@ -94,7 +94,10 @@ def notify_broken_imagery(data):
             broken_date = dateutil.parser.isoparse(broken[source_id]).date()
             days = (datetime.date.today() - broken_date).days + 1
 
+            print(f"Imagery broken: {d['name']}: Days {days}")
+
             if days > 0 and days < 5:  # TODO
+                print(f"Imagery broken: Notify!")
                 reason = "\n".join(
                     [
                         message
@@ -104,4 +107,3 @@ def notify_broken_imagery(data):
                 )
                 filepath = f"sources/{'/'.join(d['directory'])}/{d['filename']}"
                 create_github_issue(filepath, imagery_name, reason, days)
-            break
