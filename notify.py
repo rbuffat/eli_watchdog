@@ -8,7 +8,8 @@ import datetime
 
 
 GITHUB_API_URL = "https://api.github.com"
-GITHUB_REPO = "rbuffat/editor-layer-index"
+GITHUB_REPO = "osmlab/editor-layer-index"
+CREATE_ISSUE_AFTER_DAYS = 5
 
 
 def query_contributors(repo: Repository, filepath: str) -> set[str]:
@@ -27,7 +28,8 @@ def query_contributors(repo: Repository, filepath: str) -> set[str]:
     contributors = set()
     commits = repo.get_commits(path=filepath)
     for commit in commits:
-        contributors.add(commit.author.login)
+        if "github-actions" not in commit.author.login:
+            contributors.add(commit.author.login)
     return contributors
 
 
@@ -51,7 +53,6 @@ def create_github_issue(
     try:
         # Github Settings -> Developer Settings -> Personal access tokens -> Enable repo / public_repo scope
         pa_token = os.environ["PA_TOKEN"]
-        print(pa_token, len(pa_token))
         g = Github(pa_token)
         repo = g.get_repo(GITHUB_REPO)
 
@@ -66,7 +67,7 @@ def create_github_issue(
             f"{reason}",
             "",
             "CC contributors to this imagery:",
-            f"{', '.join([f'{contributor}' for contributor in contributors])}",
+            f"{', '.join([f'@{contributor}' for contributor in contributors])}",
         ]
         body = "\n".join(body_lines)
 
@@ -97,7 +98,7 @@ def notify_broken_imagery(data):
 
             print(f"Imagery broken: {d['name']}: Days {days}")
 
-            if days > 0 and days < 5:  # TODO
+            if days == CREATE_ISSUE_AFTER_DAYS:
                 print(f"Imagery broken: Notify!")
                 reason = "\n".join(
                     [
