@@ -7,6 +7,7 @@ import dateutil.parser
 from github import Github
 from github.Issue import Issue
 from github.Repository import Repository
+import pprint
 
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_REPO = "osmlab/editor-layer-index"
@@ -57,7 +58,6 @@ def create_github_issue(
     days : int
         The number of days the source is broken
     """
-
     try:
 
         contributors = query_contributors(repo, imagery_filepath)
@@ -147,6 +147,9 @@ def notify_broken_imagery(data):
             if source_id not in broken:
                 continue
 
+            filepath = f"sources/{'/'.join(d['directory'])}/{d['filename']}"
+            broken_imagery_paths.add(filepath)
+
             imagery_name = d["name"]
 
             broken_date = dateutil.parser.isoparse(broken[source_id]).date()
@@ -162,12 +165,15 @@ def notify_broken_imagery(data):
                         if "Error" in message
                     ]
                 )
-                filepath = f"sources/{'/'.join(d['directory'])}/{d['filename']}"
-                broken_imagery_paths.add(filepath)
                 # TODO reopen existing issue instead of creating a new one
-                create_github_issue(repo, filepath, imagery_name, reason, days)
+                print("Create new issue")
+                #create_github_issue(repo, filepath, imagery_name, reason, days)
 
+        print("broken_imagery_paths")
+        pprint.pprint(broken_imagery_paths)
         # Close open issues for sources that aren't broken anymore
         for filepath, watchdog_issue in open_watchdog_issues.items():
+            print(filepath, filepath not in broken_imagery_paths)
             if filepath not in broken_imagery_paths:
-                close_github_issue(repo, watchdog_issue)
+                print("Should close")
+                #close_github_issue(repo, watchdog_issue)
