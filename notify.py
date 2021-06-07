@@ -1,15 +1,14 @@
 import datetime
 import json
 import os
+import pprint
 import re
 
 import dateutil.parser
 from github import Github
 from github.Issue import Issue
 from github.Repository import Repository
-import pprint
 
-GITHUB_API_URL = "https://api.github.com"
 GITHUB_REPO = "osmlab/editor-layer-index"
 CREATE_ISSUE_AFTER_DAYS = 5
 
@@ -166,14 +165,13 @@ def notify_broken_imagery(data):
                     ]
                 )
                 # TODO reopen existing issue instead of creating a new one
-                print("Create new issue")
-                #create_github_issue(repo, filepath, imagery_name, reason, days)
+                create_github_issue(repo, filepath, imagery_name, reason, days)
 
-        print("broken_imagery_paths")
+        print("Broken files")
         pprint.pprint(broken_imagery_paths)
+
         # Close open issues for sources that aren't broken anymore
         for filepath, watchdog_issue in open_watchdog_issues.items():
-            print(filepath, filepath not in broken_imagery_paths)
+            print(f"{filepath}: Should close: {filepath not in broken_imagery_paths}")
             if filepath not in broken_imagery_paths:
-                print("Should close")
-                #close_github_issue(repo, watchdog_issue)
+                close_github_issue(repo, watchdog_issue)
