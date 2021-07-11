@@ -19,7 +19,6 @@
     "Czestochowa-2015": "2021-07-09",
     "Czestochowa-2011": "2021-07-09",
     "poznan-ortofotomapa2014": "2020-09-14",
-    "Ruda_Slaska-aerial_image": "2021-07-10",
     "Czestochowa-2013": "2021-07-09",
     "Lodz-buildings": "2020-09-14",
     "Lodz-2015": "2020-09-14",
@@ -37,9 +36,11 @@
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "IBGE_BC250_Terra_Indegina": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
+    "IBGE_BCIM_Gerador_Eletrica": "2021-07-11",
     "IBGE_BC250_Rios_Drenagem": "2020-09-14",
     "IBGE_BC250_Uso_Sustentavel": "2020-09-14",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
+    "IBGE_BCIM_Municipio": "2021-07-11",
     "BDGEx_ctm_multi": "2021-04-01",
     "londrina2011": "2020-09-14"
 }
