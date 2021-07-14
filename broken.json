@@ -1,5 +1,9 @@
 {
     "drone-imagery-2016": "2021-01-21",
+    "nve-snoskred": "2021-07-14",
+    "nve-vindkraft": "2021-07-14",
+    "nve-nettanlegg": "2021-07-14",
+    "nve-vannkraft": "2021-07-14",
     "route500hydro": "2021-07-07",
     "osmfr_volta": "2021-07-08",
     "fr.ign.bdtopo": "2021-07-07",
@@ -32,6 +36,7 @@
     "gaza_pleiades_20140706": "2021-01-21",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "IBGE_BC250_Rodoviario": "2020-09-14",
+    "rio2013": "2021-07-14",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "IBGE_BC250_Terra_Indegina": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
