@@ -6,7 +6,6 @@
     "route500": "2021-08-08",
     "OS-OpenData_Locator": "2020-09-14",
     "poznan-ortofotomapa2014": "2020-09-14",
-    "Ruda_Slaska-aerial_image": "2021-08-23",
     "Bytom-2014": "2021-07-17",
     "Lodz-buildings": "2020-09-14",
     "Bytom-2012": "2021-05-05",
@@ -32,11 +31,14 @@
     "IBGE_BC250_Rodoviario": "2020-09-14",
     "IBGE_BC250_Terra_Indegina": "2020-09-14",
     "londrina2011": "2020-09-14",
+    "GeoPortal_DF_2015": "2021-08-24",
     "BDGEx_ctm_multi": "2021-04-01",
     "rio2013": "2021-07-14",
     "IBGE_BC250_Uso_Sustentavel": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
-    "IBGE_BC250_Rios_Drenagem": "2020-09-14"
+    "GeoPortal_DF_2019": "2021-08-24",
+    "IBGE_BC250_Rios_Drenagem": "2020-09-14",
+    "GeoPortal_DF_2016": "2021-08-24"
 }
