@@ -1,9 +1,4 @@
 {
-    "tirol.gv.at-DGM": "2021-08-31",
-    "tirol.gv.at-orthofoto-cir": "2021-08-31",
-    "tirol.gv.at-DOM": "2021-08-31",
-    "tirol.gv.at-orthofoto": "2021-08-31",
-    "tirol.gv.at-contourlines": "2021-08-31",
     "OS-OpenData_Locator": "2020-09-14",
     "poznan-ortofotomapa2014": "2020-09-14",
     "Bytom-2014": "2021-07-17",
@@ -22,8 +17,8 @@
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
-    "finds.jp_KBN_2500": "2021-08-31",
     "openpt_map": "2021-02-05",
+    "MCGIS-County-NAIP-Imagery-2017": "2021-09-01",
     "drone-imagery-2016": "2021-01-21",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "IBGE_BC250_Rodoviario": "2020-09-14",
@@ -34,6 +29,7 @@
     "IBGE_BC250_Uso_Sustentavel": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
+    "jaragua-do-sul-2020": "2021-09-01",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "IBGE_BC250_Rios_Drenagem": "2020-09-14"
 }
