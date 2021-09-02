@@ -1,4 +1,9 @@
 {
+    "tirol.gv.at-DGM": "2021-09-02",
+    "tirol.gv.at-orthofoto-cir": "2021-09-02",
+    "tirol.gv.at-DOM": "2021-09-02",
+    "tirol.gv.at-orthofoto": "2021-09-02",
+    "tirol.gv.at-contourlines": "2021-09-02",
     "OS-OpenData_Locator": "2020-09-14",
     "poznan-ortofotomapa2014": "2020-09-14",
     "Bytom-2014": "2021-07-17",
@@ -29,7 +34,6 @@
     "IBGE_BC250_Uso_Sustentavel": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
-    "jaragua-do-sul-2020": "2021-09-01",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "IBGE_BC250_Rios_Drenagem": "2020-09-14"
 }
