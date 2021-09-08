@@ -8,7 +8,6 @@
     "Lodz-buildings": "2020-09-14",
     "poznan-ortofotomapa2014": "2020-09-14",
     "Bytom-2012": "2021-05-05",
-    "poznan-ortofotomapaBiezaca": "2021-09-07",
     "Bytom-buildings": "2021-05-05",
     "Lodz-2015": "2020-09-14",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
@@ -17,6 +16,8 @@
     "openlabs-geoportal-public-transport": "2021-05-14",
     "openlabs-geoportal-tirana": "2021-05-14",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
+    "gis.stmk.gv.at-surface": "2021-09-08",
+    "gis.stmk.gv.at-terrain": "2021-09-08",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "BDGEx_ctm_multi": "2021-04-01",
@@ -29,7 +30,9 @@
     "rio2013": "2021-07-14",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "IBGE_BC250_Rios_Drenagem": "2020-09-14",
+    "IBGE_Nomes_Ruas": "2021-09-08",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
+    "finds.jp_KBN_2500": "2021-09-08",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21"
 }
