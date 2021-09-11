@@ -6,6 +6,7 @@
     "lubaczowski-buildings": "2020-09-14",
     "Siemianowice_Slaskie-buildings": "2020-09-14",
     "Lodz-buildings": "2020-09-14",
+    "Ruda_Slaska-aerial_image": "2021-09-11",
     "poznan-ortofotomapa2014": "2020-09-14",
     "Bytom-2012": "2021-05-05",
     "Bytom-buildings": "2021-05-05",
@@ -16,8 +17,6 @@
     "openlabs-geoportal-public-transport": "2021-05-14",
     "openlabs-geoportal-tirana": "2021-05-14",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
-    "hamburg-20cm": "2021-09-10",
-    "Hamburg-DK5": "2021-09-10",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "BDGEx_ctm_multi": "2021-04-01",
@@ -32,6 +31,7 @@
     "IBGE_BC250_Rios_Drenagem": "2020-09-14",
     "IBGE_Nomes_Ruas": "2021-09-08",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
+    "susono_shizuoka_jp_orthophoto": "2021-09-11",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21"
 }
