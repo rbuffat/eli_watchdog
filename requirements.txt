@@ -1,7 +1,7 @@
 shapely==1.7.1
 mercantile==1.2.1
 owslib==0.24.1
-jinja2==2.11.3
+jinja2==3.0.2
 aiofiles==0.7.0
 aiohttp[speedups]==3.7.4.post0
 validators==0.18.2
