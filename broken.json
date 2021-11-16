@@ -12,7 +12,6 @@
     "OS-OpenData_Locator": "2020-09-14",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
-    "linkoping-orto": "2021-11-13",
     "Siemianowice_Slaskie-buildings": "2020-09-14",
     "Geoportal2-PL-prng": "2021-11-06",
     "poznan-ortofotomapa2014": "2020-09-14",
@@ -33,16 +32,9 @@
     "openpt_map": "2021-02-05",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "drone-imagery-2016": "2021-01-21",
-    "USDA-NAIP": "2021-11-15",
     "MCGIS-County-NAIP-Imagery-2017": "2021-09-01",
     "finds.jp_KBN_2500": "2021-10-19",
     "gaza_pleiades_20140706": "2021-01-21",
     "gaza_pleiades_20140706_nir": "2021-01-21",
-    "Israel_MTB": "2021-11-01",
-    "LPI_NSW_Administrative_Boundaries_LGA": "2021-11-15",
-    "LPI_NSW_Administrative_Boundaries_StateForest": "2021-11-15",
-    "LPI_NSW_Administrative_Boundaries_County": "2021-11-15",
-    "LPI_NSW_Administrative_Boundaries_NPWS_Reserve": "2021-11-15",
-    "LPI_NSW_Administrative_Boundaries_Parish": "2021-11-15",
-    "LPI_NSW_Administrative_Boundaries_Suburb": "2021-11-15"
+    "Israel_MTB": "2021-11-01"
 }
