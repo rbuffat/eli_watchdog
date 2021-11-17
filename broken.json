@@ -24,17 +24,21 @@
     "UkraineVinnytsiaTG2021": "2021-11-15",
     "openlabs-geoportal-tirana": "2021-05-14",
     "openlabs-geoportal-public-transport": "2021-05-14",
+    "South-Tyrol-DSM_2013_2_5m": "2021-11-17",
     "South-Tyrol-Topomap": "2021-06-20",
+    "South-Tyrol-DTM_2013": "2021-11-17",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
+    "South-Tyrol-DSM_2013": "2021-11-17",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
-    "LSA-ATKIS_BU": "2021-11-14",
     "OSM_Inspector-Multipolygon": "2021-10-15",
     "openpt_map": "2021-02-05",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "drone-imagery-2016": "2021-01-21",
+    "NC_Coastal_Plain_Ortho_2020_NDVI": "2021-11-17",
     "MCGIS-County-NAIP-Imagery-2017": "2021-09-01",
     "finds.jp_KBN_2500": "2021-10-19",
     "gaza_pleiades_20140706": "2021-01-21",
     "gaza_pleiades_20140706_nir": "2021-01-21",
-    "Israel_MTB": "2021-11-01"
+    "Israel_MTB": "2021-11-01",
+    "MainRoadsWA_Road_Hierarchy": "2021-11-17"
 }
