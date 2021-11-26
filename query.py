@@ -8,7 +8,7 @@ from io import StringIO
 import aiofiles
 import aiohttp
 import validators
-from shapely.geometry import shape, MultiPolygon, Point, box
+from shapely.geometry import shape, Point, box
 import mercantile
 from owslib.wmts import WebMapTileService
 import warnings
@@ -505,12 +505,13 @@ async def check_wms(source, session: ClientSession):
             "Parameter 'styles' is missing in url. 'STYLES=' can be used to request default style."
         )
 
-    def get_getcapabilitie_url(wms_version=None):
+    def get_getcapabilitie_url(wms_version=None, parameter_uppercase=False):
+
         get_capabilities_args = {"service": "WMS", "request": "GetCapabilities"}
         if wms_version is not None:
             get_capabilities_args["version"] = wms_version
 
-        # Drop all wms getmap parameters, keep all extra arguments (e.g. such as map or key)
+        # Keep extra arguments, such as map or key
         for key in wms_args:
             if key not in {
                 "version",
@@ -527,9 +528,16 @@ async def check_wms(source, session: ClientSession):
                 "dpi",
                 "map_resolution",
                 "format_options",
+
             }:
                 get_capabilities_args[key] = wms_args[key]
-        url_parts[4] = urlencode(list(get_capabilities_args.items()))
+
+        parameters = get_capabilities_args.items()
+        if parameter_uppercase:
+            parameters = [(k.upper(), v) for k, v in parameters]
+        else:
+            parameters = [(k.lower(), v) for k, v in parameters]
+        url_parts[4] = urlencode(parameters)
         return urlunparse(url_parts)
 
     # We first send a service=WMS&request=GetCapabilities request to server
@@ -538,37 +546,39 @@ async def check_wms(source, session: ClientSession):
     # If this fails, it is tried to explicitly specify a WMS version
     exceptions = []
     wms = None
-    for wmsversion in [None, "1.3.0", "1.1.1", "1.1.0", "1.0.0"]:
-        if wmsversion is None:
-            wmsversion_str = "-"
-        else:
-            wmsversion_str = wmsversion
+    for parameter_uppercase in [True, False]:
+        for wmsversion in [None, "1.3.0", "1.1.1", "1.1.0", "1.0.0"]:
+            if wmsversion is None:
+                wmsversion_str = "-"
+            else:
+                wmsversion_str = wmsversion
 
-        try:
-            wms_getcapabilites_url = get_getcapabilitie_url(wmsversion)
+            wms_getcapabilites_url = None
+            try:
+                wms_getcapabilites_url = get_getcapabilitie_url(wmsversion, parameter_uppercase)
 
-            resp = await get_url(
-                wms_getcapabilites_url, session, with_text=True, headers=headers
-            )
-            if resp.exception is not None:
-                exceptions.append("WMS {}: {}".format(wmsversion, resp.exception))
+                resp = await get_url(
+                    wms_getcapabilites_url, session, with_text=True, headers=headers
+                )
+                if resp.exception is not None:
+                    exceptions.append("WMS {}: {}".format(wmsversion, resp.exception))
+                    continue
+                xml = resp.text
+                if isinstance(xml, bytes):
+                    # Parse xml encoding to decode
+                    try:
+                        xml_ignored = xml.decode(errors="ignore")
+                        str_encoding = re.search('encoding="(.*?)"', xml_ignored).group(1)
+                        xml = xml.decode(encoding=str_encoding)
+                    except Exception as e:
+                        raise RuntimeError("Could not parse encoding: {}".format(str(e)))
+
+                wms = parse_wms(xml)
+                if wms is not None:
+                    break
+            except Exception as e:
+                exceptions.append("WMS {}: URL: {} Error: {}".format(wmsversion_str, wms_getcapabilites_url, str(e)))
                 continue
-            xml = resp.text
-            if isinstance(xml, bytes):
-                # Parse xml encoding to decode
-                try:
-                    xml_ignored = xml.decode(errors="ignore")
-                    str_encoding = re.search('encoding="(.*?)"', xml_ignored).group(1)
-                    xml = xml.decode(encoding=str_encoding)
-                except Exception as e:
-                    raise RuntimeError("Could not parse encoding: {}".format(str(e)))
-
-            wms = parse_wms(xml)
-            if wms is not None:
-                break
-        except Exception as e:
-            exceptions.append("WMS {}: Error: {}".format(wmsversion_str, str(e)))
-            continue
 
     if wms is None:
         for msg in exceptions:
@@ -774,7 +784,7 @@ async def check_wms_endpoint(source, session: ClientSession):
     for k, v in parse_qsl(u.query, keep_blank_values=True):
         wms_args[k.lower()] = v
 
-    def get_getcapabilitie_url(wms_version=None):
+    def get_getcapabilitie_url(wms_version=None, parameter_uppercase=False):
 
         get_capabilities_args = {"service": "WMS", "request": "GetCapabilities"}
         if wms_version is not None:
@@ -792,28 +802,39 @@ async def check_wms_endpoint(source, session: ClientSession):
                 "format",
                 "crs",
                 "srs",
+                "styles",
+                "transparent",
+                "dpi",
+                "map_resolution",
+                "format_options",
             }:
                 get_capabilities_args[key] = wms_args[key]
 
-        url_parts[4] = urlencode(list(get_capabilities_args.items()))
+        parameters = get_capabilities_args.items()
+        if parameter_uppercase:
+            parameters = [(k.upper(), v) for k, v in parameters]
+        else:
+            parameters = [(k.lower(), v) for k, v in parameters]
+        url_parts[4] = urlencode(parameters)
         return urlunparse(url_parts)
 
-    for wmsversion in [None, "1.3.0", "1.1.1", "1.1.0", "1.0.0"]:
-        try:
-            url = get_getcapabilitie_url(wms_version=wmsversion)
-            response = await get_url(url, session, with_text=True, headers=headers)
-            if response.exception is not None:
-                error_msgs.append(response.exception)
-                return info_msgs, warning_msgs, error_msgs
-            xml = response.text
-            wms = parse_wms(xml)
-            for access_constraint in wms["AccessConstraints"]:
-                info_msgs.append("WMS AccessConstraints: {}".format(access_constraint))
-            for fee in wms["Fees"]:
-                info_msgs.append("WMS Fees: {}".format(fee))
-            break
-        except Exception as e:
-            error_msgs.append("Exception: {}".format(str(e)))
+    for parameter_uppercase in [True, False]:
+        for wmsversion in [None, "1.3.0", "1.1.1", "1.1.0", "1.0.0"]:
+            try:
+                url = get_getcapabilitie_url(wms_version=wmsversion, parameter_uppercase=parameter_uppercase)
+                response = await get_url(url, session, with_text=True, headers=headers)
+                if response.exception is not None:
+                    error_msgs.append(response.exception)
+                    return info_msgs, warning_msgs, error_msgs
+                xml = response.text
+                wms = parse_wms(xml)
+                for access_constraint in wms["AccessConstraints"]:
+                    info_msgs.append("WMS AccessConstraints: {}".format(access_constraint))
+                for fee in wms["Fees"]:
+                    info_msgs.append("WMS Fees: {}".format(fee))
+                break
+            except Exception as e:
+                error_msgs.append("Exception: {}".format(str(e)))
 
     return info_msgs, warning_msgs, error_msgs
 
