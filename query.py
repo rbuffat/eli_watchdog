@@ -25,6 +25,7 @@ imagery_ignore = {
     "Ukraine-orto10000-2012": "Works only from within Ukraine or with an Ukrainian proxy server. (2020-9-7)",
     "UkraineKyiv2014DZK": "Works only from within Ukraine or with an Ukrainian proxy server. (2020-9-7)",
     "UkraineVinnytsia2020": "Works only from within Ukraine or with an Ukrainian proxy server. (2020-11-1)",
+    "UkraineVinnytsiaTG2021": "Works only from within Ukraine or with an Ukrainian proxy server. (2021-11-26)",
     "enedis": "Enedis checks HTTP Headers and referer- (2021-6-4)",
 }
 
