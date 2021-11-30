@@ -1,6 +1,7 @@
 {
     "Bytom-buildings": "2021-05-05",
     "Lodz-buildings": "2020-09-14",
+    "Gliwice-buildings": "2021-11-30",
     "Geoportal2-PL-prng": "2021-11-06",
     "poznan-ortofotomapa2014": "2020-09-14",
     "lubaczowski-buildings": "2020-09-14",
@@ -33,8 +34,6 @@
     "OSM_Inspector-Multipolygon": "2021-10-15",
     "openpt_map": "2021-02-05",
     "NC_Coastal_Plain_Ortho_2020_NDVI": "2021-11-19",
-    "MCGIS-County-NAIP-Imagery-2017": "2021-09-01",
-    "MCGIS-County-NAIP-Imagery-2019": "2021-11-26",
     "drone-imagery-2016": "2021-01-21",
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "gaza_pleiades_20140706": "2021-01-21",
