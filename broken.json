@@ -1,5 +1,4 @@
 {
-    "Mapa-Educativo-wms": "2022-01-17",
     "ign-cartas-50k": "2021-12-25",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
@@ -25,7 +24,6 @@
     "SDFE_Terraen_Skyggekort_40cm": "2022-01-19",
     "Lodz-buildings": "2020-09-14",
     "poznan-ortofotomapa2014": "2020-09-14",
-    "Geoportal2-PL-aerial_image_WMS": "2022-01-20",
     "Geoportal2-PL-prng": "2021-11-06",
     "debicki-buildings": "2022-01-04",
     "Bytom-2012": "2021-05-05",
@@ -43,5 +41,7 @@
     "finds.jp_KBN_2500": "2021-10-19",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
+    "Singapore-Landlot": "2022-01-21",
+    "Singapore-OneMap": "2022-01-21",
     "Israel_MTB": "2021-11-01"
 }
