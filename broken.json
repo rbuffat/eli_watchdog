@@ -1,10 +1,10 @@
 {
+    "Agroindustria-wms": "2022-01-22",
     "ign-cartas-50k": "2021-12-25",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "IBGE_BC250_Rios_Drenagem": "2020-09-14",
     "IBGE_BC250_Villa": "2020-09-14",
-    "jaragua-do-sul-2020": "2022-01-20",
     "BDGEx_ctm_multi": "2021-04-01",
     "londrina2011": "2020-09-14",
     "IBGE_BC250_Uso_Sustentavel": "2020-09-14",
@@ -14,11 +14,13 @@
     "Benin_cotonou_pleiade_2016": "2021-03-09",
     "OSM_Inspector-Multipolygon": "2021-10-15",
     "openpt_map": "2021-02-05",
+    "linkoping-orto": "2022-01-22",
     "osmie_tie_not_counties": "2022-01-07",
     "GURS-buildings": "2021-12-18",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
     "South-Tyrol-Topomap": "2021-06-20",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
+    "ITACyL-Castile-and-Leon": "2022-01-22",
     "Geodatastyrelsen_DTK_Kort25": "2022-01-07",
     "SDFE_Overflade_Skyggekort_40cm": "2022-01-19",
     "SDFE_Terraen_Skyggekort_40cm": "2022-01-19",
@@ -41,7 +43,5 @@
     "finds.jp_KBN_2500": "2021-10-19",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
-    "Singapore-Landlot": "2022-01-21",
-    "Singapore-OneMap": "2022-01-21",
     "Israel_MTB": "2021-11-01"
 }
