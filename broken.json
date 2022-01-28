@@ -1,7 +1,6 @@
 {
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "ign-cartas-50k": "2021-12-25",
-    "Agroindustria-wms": "2022-01-22",
     "londrina2011": "2020-09-14",
     "IBGE_BC250_Aglomerado_Rural": "2020-09-14",
     "BDGEx_ctm_multi": "2021-04-01",
@@ -13,6 +12,8 @@
     "IBGE_BC250_Pista_Pouso": "2020-09-14",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
     "OS-OpenData_Locator": "2020-09-14",
+    "UkraineLubetskaOTG2020": "2022-01-28",
+    "UkraineDonAndriivskaOTG2020": "2022-01-28",
     "SDFE_Terraen_Skyggekort_40cm": "2022-01-19",
     "SDFE_Overflade_Skyggekort_40cm": "2022-01-19",
     "Geodatastyrelsen_DTK_Kort25": "2022-01-07",
