@@ -4,5 +4,5 @@ owslib==0.27.2
 jinja2==2.11.3
 aiofiles==22.1.0
 aiohttp[speedups]==3.8.1
-validators==0.18.2
+validators==0.20.0
 PyGithub==1.55
