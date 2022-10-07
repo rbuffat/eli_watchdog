@@ -3,6 +3,10 @@ mercantile==1.2.1
 owslib==0.27.2
 jinja2==3.1.2
 aiofiles==22.1.0
-aiohttp[speedups]==3.8.3
+aiohttp==3.8.3
+# aiohttp speedups requires cchardet, which does not yet provide a py 3.10 wheel
+# Add aiodns and brotli manually
+aiodns==3.0.0
+Brotli==1.0.9
 validators==0.20.0
 PyGithub==1.55

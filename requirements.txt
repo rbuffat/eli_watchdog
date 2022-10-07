@@ -7,12 +7,12 @@
 aiodns==3.0.0 \
     --hash=sha256:2b19bc5f97e5c936638d28e665923c093d8af2bf3aa88d35c43417fa25d136a2 \
     --hash=sha256:946bdfabe743fceeeb093c8a010f5d1645f708a241be849e17edfb0e49e08cd6
-    # via aiohttp
+    # via -r requirements.in
 aiofiles==22.1.0 \
     --hash=sha256:1142fa8e80dbae46bb6339573ad4c8c0841358f79c6eb50a493dceca14621bad \
     --hash=sha256:9107f1ca0b2a5553987a94a3c9959fe5b491fdf731389aa5b7b1bd0733e32de6
     # via -r requirements.in
-aiohttp[speedups]==3.8.3 \
+aiohttp==3.8.3 \
     --hash=sha256:02f9a2c72fc95d59b881cf38a4b2be9381b9527f9d328771e90f72ac76f31ad8 \
     --hash=sha256:059a91e88f2c00fe40aed9031b3606c3f311414f86a90d696dd982e7aec48142 \
     --hash=sha256:05a3c31c6d7cd08c149e50dc7aa2568317f5844acd745621983380597f027a18 \
@@ -176,7 +176,7 @@ brotli==1.0.9 \
     --hash=sha256:e4c4e92c14a57c9bd4cb4be678c25369bf7a092d55fd0866f759e425b9660806 \
     --hash=sha256:ec1947eabbaf8e0531e8e899fc1d9876c179fc518989461f5d24e2223395a9e3 \
     --hash=sha256:f909bbbc433048b499cb9db9e713b5d8d949e8c109a2a548502fb9aa8630f0b1
-    # via aiohttp
+    # via -r requirements.in
 certifi==2022.9.24 \
     --hash=sha256:0d9c601124e5a6ba9712dbc60d9c53c21e34f5f641fe83002317394311bdce14 \
     --hash=sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382
