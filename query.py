@@ -944,9 +944,6 @@ async def process_source(filename, session: ClientSession):
     source_id = source["properties"]["id"]
     result["id"] = source_id
 
-    if not source_id == "Torokbalint-orthophoto-2018":
-        return
-
     # Check licence url
     if "license_url" not in source["properties"]:
         result["license_url"] = create_result(ResultStatus.ERROR, "No license_url set!")
