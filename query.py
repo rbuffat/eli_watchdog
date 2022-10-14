@@ -5,6 +5,7 @@ import json
 import os
 from collections import namedtuple
 from io import StringIO
+import ssl
 import aiofiles
 import aiohttp
 import validators
@@ -48,9 +49,16 @@ response_cache = {}
 domain_locks = {}
 domain_lock = asyncio.Lock()
 
+# We ignore SSL issues as best we can
+# See https://github.com/aio-libs/aiohttp/issues/7018
+nossl_sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+nossl_sslcontext.check_hostname = False
+nossl_sslcontext.verify_mode = ssl.CERT_NONE
+nossl_sslcontext.set_ciphers("ALL")
+
 
 def get_http_headers(source):
-    """ Extract http headers from source"""
+    """Extract http headers from source"""
     headers = {}
     if "custom-http-headers" in source["properties"]:
         key = source["properties"]["custom-http-headers"]["header-name"]
@@ -76,9 +84,7 @@ async def get_url(url: str, session: ClientSession, with_text=False, headers=Non
         if url not in response_cache:
             try:
                 print("GET {}".format(url), headers)
-                async with session.request(
-                    method="GET", url=url, ssl=False, headers=headers
-                ) as response:
+                async with session.get(url=url, ssl=nossl_sslcontext, headers=headers) as response:
                     status = response.status
                     if with_text:
                         try:
@@ -324,7 +330,7 @@ async def check_tms(source, session: ClientSession):
 
             query_url = tms_url
             if "{-y}" in tms_url:
-                y = 2 ** zoom - 1 - tile.y
+                y = 2**zoom - 1 - tile.y
                 query_url = query_url.replace("{-y}", str(y))
             elif "{!y}" in tms_url:
                 y = 2 ** (zoom - 1) - 1 - tile.y
@@ -529,7 +535,6 @@ async def check_wms(source, session: ClientSession):
                 "dpi",
                 "map_resolution",
                 "format_options",
-
             }:
                 get_capabilities_args[key] = wms_args[key]
 
@@ -556,7 +561,9 @@ async def check_wms(source, session: ClientSession):
 
             wms_getcapabilites_url = None
             try:
-                wms_getcapabilites_url = get_getcapabilitie_url(wmsversion, parameter_uppercase)
+                wms_getcapabilites_url = get_getcapabilitie_url(
+                    wmsversion, parameter_uppercase
+                )
 
                 resp = await get_url(
                     wms_getcapabilites_url, session, with_text=True, headers=headers
@@ -569,16 +576,24 @@ async def check_wms(source, session: ClientSession):
                     # Parse xml encoding to decode
                     try:
                         xml_ignored = xml.decode(errors="ignore")
-                        str_encoding = re.search('encoding="(.*?)"', xml_ignored).group(1)
+                        str_encoding = re.search('encoding="(.*?)"', xml_ignored).group(
+                            1
+                        )
                         xml = xml.decode(encoding=str_encoding)
                     except Exception as e:
-                        raise RuntimeError("Could not parse encoding: {}".format(str(e)))
+                        raise RuntimeError(
+                            "Could not parse encoding: {}".format(str(e))
+                        )
 
                 wms = parse_wms(xml)
                 if wms is not None:
                     break
             except Exception as e:
-                exceptions.append("WMS {}: URL: {} Error: {}".format(wmsversion_str, wms_getcapabilites_url, str(e)))
+                exceptions.append(
+                    "WMS {}: URL: {} Error: {}".format(
+                        wmsversion_str, wms_getcapabilites_url, str(e)
+                    )
+                )
                 continue
 
     if wms is None:
@@ -822,7 +837,9 @@ async def check_wms_endpoint(source, session: ClientSession):
     for parameter_uppercase in [True, False]:
         for wmsversion in [None, "1.3.0", "1.1.1", "1.1.0", "1.0.0"]:
             try:
-                url = get_getcapabilitie_url(wms_version=wmsversion, parameter_uppercase=parameter_uppercase)
+                url = get_getcapabilitie_url(
+                    wms_version=wmsversion, parameter_uppercase=parameter_uppercase
+                )
                 response = await get_url(url, session, with_text=True, headers=headers)
                 if response.exception is not None:
                     error_msgs.append(response.exception)
@@ -830,7 +847,9 @@ async def check_wms_endpoint(source, session: ClientSession):
                 xml = response.text
                 wms = parse_wms(xml)
                 for access_constraint in wms["AccessConstraints"]:
-                    info_msgs.append("WMS AccessConstraints: {}".format(access_constraint))
+                    info_msgs.append(
+                        "WMS AccessConstraints: {}".format(access_constraint)
+                    )
                 for fee in wms["Fees"]:
                     info_msgs.append("WMS Fees: {}".format(fee))
                 break
@@ -924,6 +943,9 @@ async def process_source(filename, session: ClientSession):
     result["type"] = source["properties"]["type"]
     source_id = source["properties"]["id"]
     result["id"] = source_id
+
+    if not source_id == "Torokbalint-orthophoto-2018":
+        return
 
     # Check licence url
     if "license_url" not in source["properties"]:
