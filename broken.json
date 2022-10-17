@@ -5,7 +5,6 @@
     "GeoPortal_DF_2015": "2022-10-07",
     "GeoPortal_DF_2016": "2022-10-07",
     "ign-wms": "2022-10-08",
-    "ign-uav-orthophotos-wms": "2022-10-14",
     "OSM_Inspector-Multipolygon": "2021-10-15",
     "openpt_map": "2021-02-05",
     "South_Africa-CapeTown-Aerial-2017": "2022-10-07",
@@ -15,7 +14,6 @@
     "MCGIS-County-NAIP-Imagery-2019": "2022-10-07",
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
-    "Marco_Island_FL_Ortho_2021": "2022-10-16",
     "openlabs-geoportal-public-transport": "2021-05-14",
     "openlabs-geoportal-tirana": "2021-05-14",
     "Lombardia-Italy-CTR": "2022-02-11",
@@ -53,9 +51,5 @@
     "osmie_tie_not_counties": "2022-01-07",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
-    "Pangasinan_Bulacan_HiRes": "2022-10-07",
-    "NLSC-EMAP5": "2022-10-16",
-    "TW_NLSC_WMS_Village": "2022-10-16",
-    "TW_NLSC_WMS_LANDSECT": "2022-10-16",
-    "TW_NLSC_WMS_EMAP6": "2022-10-16"
+    "Pangasinan_Bulacan_HiRes": "2022-10-07"
 }
