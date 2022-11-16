@@ -1,5 +1,4 @@
 {
-    "CT_ECO_Shaded_relief_2016": "2022-11-13",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2017": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2019": "2022-10-07",
@@ -36,7 +35,6 @@
     "openlabs-geoportal-public-transport": "2021-05-14",
     "openlabs-geoportal-tirana": "2021-05-14",
     "fr.dpt.06.2020.storm.alex": "2022-02-03",
-    "Basel-Landschaft-2015": "2022-11-13",
     "Frankfurt-am-Main-2018": "2022-02-18",
     "Frankfurt-am-Main-2016": "2022-02-18",
     "Frankfurt-am-Main-2017": "2022-02-18",
@@ -49,9 +47,11 @@
     "rzeszowski-aerial": "2022-10-07",
     "lubaczowski-buildings": "2020-09-14",
     "Lodz-2015": "2020-09-14",
+    "Lodz-2017": "2022-11-16",
     "rzeszowski-buildings": "2022-10-07",
     "Lodz-buildings": "2020-09-14",
     "osmie_tie_not_counties": "2022-01-07",
+    "hri-orto": "2022-11-16",
     "UkraineLubetskaOTG2020": "2022-10-07",
     "UkraineMykolaiv2018": "2022-10-07"
 }
