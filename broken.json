@@ -4,6 +4,7 @@
     "MCGIS-County-NAIP-Imagery-2019": "2022-10-07",
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "MCGIS-County-NAIP-Imagery-2015": "2022-10-07",
+    "Marco_Island_FL_Ortho_2021": "2022-11-17",
     "openpt_map": "2021-02-05",
     "OSM_Inspector-Multipolygon": "2021-10-15",
     "South_Africa-CapeTown-Aerial-2018": "2022-10-07",
@@ -13,6 +14,7 @@
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
     "ign-orthophotos-wms": "2022-11-13",
     "ign-uav-orthophotos-wms": "2022-11-13",
+    "ign-wms": "2022-11-17",
     "GeoPortal_DF_2016": "2022-10-07",
     "GeoPortal_DF_2015": "2022-10-07",
     "GeoPortal_DF_2019": "2022-10-07",
@@ -36,6 +38,7 @@
     "openlabs-geoportal-tirana": "2021-05-14",
     "fr.dpt.06.2020.storm.alex": "2022-02-03",
     "Frankfurt-am-Main-2018": "2022-02-18",
+    "db-inspire-2015-11": "2022-11-17",
     "Frankfurt-am-Main-2016": "2022-02-18",
     "Frankfurt-am-Main-2017": "2022-02-18",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
@@ -47,11 +50,10 @@
     "rzeszowski-aerial": "2022-10-07",
     "lubaczowski-buildings": "2020-09-14",
     "Lodz-2015": "2020-09-14",
-    "Lodz-2017": "2022-11-16",
     "rzeszowski-buildings": "2022-10-07",
     "Lodz-buildings": "2020-09-14",
     "osmie_tie_not_counties": "2022-01-07",
-    "hri-orto": "2022-11-16",
     "UkraineLubetskaOTG2020": "2022-10-07",
-    "UkraineMykolaiv2018": "2022-10-07"
+    "UkraineMykolaiv2018": "2022-10-07",
+    "UkraineDonAndriivskaOTG2020": "2022-11-17"
 }
