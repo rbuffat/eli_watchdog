@@ -38,10 +38,15 @@
     "openlabs-geoportal-tirana": "2021-05-14",
     "fr.dpt.06.2020.storm.alex": "2022-02-03",
     "Frankfurt-am-Main-2018": "2022-02-18",
+    "Worms-2012": "2022-11-24",
     "db-inspire-2015-11": "2022-11-17",
+    "Worms-2020": "2022-11-24",
     "Frankfurt-am-Main-2016": "2022-02-18",
+    "Worms-2016": "2022-11-24",
     "Frankfurt-am-Main-2017": "2022-02-18",
+    "Worms-2003": "2022-11-24",
     "Metropole_Ruhr_RVR-DOP10": "2020-09-14",
+    "Worms-2008": "2022-11-24",
     "debicki-buildings": "2022-01-04",
     "Geoportal2-PL-prng": "2021-11-06",
     "stalowowolski-buildings": "2022-10-07",
@@ -52,6 +57,9 @@
     "rzeszowski-buildings": "2022-10-07",
     "Lodz-buildings": "2020-09-14",
     "osmie_tie_not_counties": "2022-01-07",
+    "UkraineCherkasy2021": "2022-11-24",
     "UkraineLubetskaOTG2020": "2022-10-07",
-    "UkraineMykolaiv2018": "2022-10-07"
+    "UkraineCherkasy2015": "2022-11-24",
+    "UkraineMykolaiv2018": "2022-10-07",
+    "UkraineDonAndriivskaOTG2020": "2022-11-24"
 }
