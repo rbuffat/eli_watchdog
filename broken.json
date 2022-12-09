@@ -14,6 +14,7 @@
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "UkraineMykolaiv2018": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
+    "UkraineDonAndriivskaOTG2020": "2022-12-09",
     "sollentuna-orto": "2022-10-14",
     "gothenburg-dtm-2017": "2022-10-07",
     "osmie_tie_not_counties": "2022-01-07",
@@ -82,6 +83,6 @@
     "rio2015": "2022-10-07",
     "IBGE_BC250_Rios_Drenagem": "2022-12-06",
     "IBGE_BC250_Uso_Sustentavel": "2022-12-06",
-    "ign-uav-orthophotos-wms": "2022-11-30",
-    "ign-wms": "2022-11-28"
+    "ign-wms": "2022-11-28",
+    "ign-orthophotos-wms": "2022-12-09"
 }
