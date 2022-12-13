@@ -2,7 +2,6 @@
     "South_Africa-CapeTown-Aerial-2017": "2022-10-07",
     "South_Africa-CapeTown-Aerial-2018": "2022-10-07",
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
-    "finds.jp_KBN_2500": "2022-12-12",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
     "osm-mapnik-no_labels": "2022-11-18",
@@ -12,12 +11,11 @@
     "MCGIS-County-NAIP-Imagery-2017": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2019": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2015": "2022-10-07",
+    "Marco_Island_FL_Ortho_2021": "2022-12-13",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "UkraineMykolaiv2018": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
-    "UkraineDonAndriivskaOTG2020": "2022-12-09",
     "sollentuna-orto": "2022-10-14",
-    "linkoping-orto": "2022-12-12",
     "gothenburg-dtm-2017": "2022-10-07",
     "osmie_tie_not_counties": "2022-01-07",
     "ITACyL-Castile-and-Leon": "2022-01-22",
@@ -87,5 +85,6 @@
     "IBGE_BC250_Rios_Drenagem": "2022-12-06",
     "IBGE_BC250_Uso_Sustentavel": "2022-12-06",
     "ign-uav-orthophotos-wms": "2022-12-10",
-    "ign-wms": "2022-11-28"
+    "ign-wms": "2022-11-28",
+    "ign-orthophotos-wms": "2022-12-13"
 }
