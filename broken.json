@@ -20,6 +20,7 @@
     "osm-mapnik-no_labels": "2022-11-18",
     "gaza_pleiades_20140706": "2021-01-21",
     "gaza_pleiades_20140706_nir": "2021-01-21",
+    "tokyo_nerima_orthophoto_2016": "2022-12-28",
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
     "South-Tyrol-Topomap": "2021-06-20",
@@ -66,8 +67,12 @@
     "UkraineMykolaiv2018": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
     "UkraineDonAndriivskaOTG2020": "2022-12-15",
+    "scb-industrial": "2022-12-28",
+    "scb-settlements": "2022-12-28",
     "sollentuna-orto": "2022-10-14",
+    "scb-urban": "2022-12-28",
     "gothenburg-dtm-2017": "2022-10-07",
+    "scb-vacation": "2022-12-28",
     "OS-OpenData_Locator": "2020-09-14",
     "osmie_tie_not_counties": "2022-01-07",
     "lu.geoportail.opendata.basemap": "2022-10-07",
@@ -79,6 +84,7 @@
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "MCGIS-County-NAIP-Imagery-2015": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2017": "2022-10-07",
+    "Marco_Island_FL_Ortho_2021": "2022-12-28",
     "South_Africa-CapeTown-Aerial-2018": "2022-10-07",
     "South_Africa-CapeTown-Aerial-2017": "2022-10-07"
 }
