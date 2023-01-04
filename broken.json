@@ -15,8 +15,6 @@
     "IBGE_BC250_Uso_Sustentavel": "2022-12-06",
     "GeoPortal_DF_2015": "2022-10-07",
     "ign-uav-orthophotos-wms": "2023-01-03",
-    "ign-orthophotos-wms": "2023-01-03",
-    "ign-wms": "2022-12-31",
     "OSM_Inspector-Multipolygon": "2021-10-15",
     "openpt_map": "2021-02-05",
     "osm-mapnik-no_labels": "2022-11-18",
@@ -24,9 +22,6 @@
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "tokyo_nerima_orthophoto_2016": "2022-12-28",
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
-    "PCN-Italy-2012": "2022-12-30",
-    "PCN-Lazio_Umbria-2008": "2022-12-30",
-    "PCN-Italy-2006": "2022-12-30",
     "Lombardia-Italy-CTR-DBT": "2020-09-14",
     "South-Tyrol-Topomap": "2021-06-20",
     "Lombardia-Italy-CTR": "2022-02-11",
@@ -91,6 +86,7 @@
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "MCGIS-County-NAIP-Imagery-2015": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2017": "2022-10-07",
+    "Marco_Island_FL_Ortho_2021": "2023-01-04",
     "South_Africa-CapeTown-Aerial-2018": "2022-10-07",
     "South_Africa-CapeTown-Aerial-2017": "2022-10-07"
 }
