@@ -6,7 +6,6 @@
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "South_Africa-CapeTown-Aerial-2018": "2022-10-07",
     "South_Africa-CapeTown-Aerial-2017": "2022-10-07",
-    "ign-orthophotos-wms": "2023-01-10",
     "ign-wms": "2023-01-06",
     "IBGE_BC250_Pista_Pouso": "2022-12-06",
     "IBGE_BC250_Aglomerado_Rural": "2022-12-06",
@@ -99,6 +98,5 @@
     "Geoportal2-PL-HighResolution-aerial_archival_image_WMS": "2022-12-06",
     "gaza_pleiades_20140706": "2021-01-21",
     "gaza_pleiades_20140706_nir": "2021-01-21",
-    "Pangasinan_Bulacan_HiRes": "2022-10-07",
-    "tokyo_nerima_orthophoto_2016": "2022-12-28"
+    "Pangasinan_Bulacan_HiRes": "2022-10-07"
 }
