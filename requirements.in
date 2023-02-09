@@ -2,7 +2,7 @@ shapely==1.8.4
 mercantile==1.2.1
 owslib==0.27.2
 jinja2==3.1.2
-aiofiles==22.1.0
+aiofiles==23.1.0
 aiohttp==3.8.3
 # aiohttp speedups requires cchardet, which does not yet provide a py 3.10 wheel
 # Add aiodns and brotli manually
