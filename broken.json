@@ -94,5 +94,7 @@
     "GeoPortal_DF_2016": "2022-10-07",
     "IBGE_BC250_Gerador_Eletrica": "2022-12-06",
     "IBGE_BC250_Aglomerado_Rural": "2022-12-06",
-    "ign-wms": "2023-03-10"
+    "ign-orthophotos-wms": "2023-03-14",
+    "ign-wms": "2023-03-10",
+    "ign-uav-orthophotos-wms": "2023-03-14"
 }
