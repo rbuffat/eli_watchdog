@@ -29,6 +29,7 @@
     "kartverket-tilgjengelighet": "2022-10-07",
     "npi-svalbard-topo": "2022-12-06",
     "kartverket-luftfartshindre": "2023-02-28",
+    "geovekst-nib-historic": "2023-03-22",
     "riksantikvaren-kulturminner": "2022-10-07",
     "npi-svalbard-fkb": "2022-12-06",
     "npd-offshore": "2022-10-07",
@@ -92,8 +93,8 @@
     "IBGE_BC250_Pista_Pouso": "2022-12-06",
     "IBGE_BC250_Gerador_Eletrica": "2022-12-06",
     "GeoPortal_DF_2016": "2022-10-07",
-    "rio2019": "2022-12-24",
     "IBGE_BC250_Uso_Sustentavel": "2022-12-06",
-    "ign-uav-orthophotos-wms": "2023-03-21",
-    "ign-wms": "2023-03-10"
+    "ign-orthophotos-wms": "2023-03-22",
+    "ign-wms": "2023-03-10",
+    "LINZ_NZ_Topo50_Gridless_Maps": "2023-03-22"
 }
