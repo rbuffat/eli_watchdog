@@ -12,10 +12,10 @@
     "MCGIS-County-NAIP-Imagery-2019": "2022-10-07",
     "MCGIS-County-Valleywide-Imagery-2018": "2022-01-25",
     "MCGIS-County-NAIP-Imagery-2015": "2022-10-07",
+    "Monongalia_WV_2022": "2023-03-26",
     "Marco_Island_FL_Ortho_2021": "2023-01-27",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
-    "UkraineRivne2011": "2023-03-25",
     "UkraineMykolaiv2018": "2022-10-07",
     "lu.geoportail.opendata.basemap": "2022-10-07",
     "osmie_tie_not_counties": "2022-01-07",
@@ -78,9 +78,6 @@
     "Geoportal2-PL-addres_points_WMS": "2022-12-06",
     "rzeszowski-buildings": "2022-10-07",
     "COS2018": "2023-02-16",
-    "MDT2M_LITORAL_2014_15": "2023-03-25",
-    "ORTOS_DGRF_2004_06": "2023-03-25",
-    "ORTOS_DGT_2014_15": "2023-03-25",
     "fr.dpt.06.2020.storm.alex": "2022-02-03",
     "GeoPortal_DF_2015": "2022-10-07",
     "IBGE_BC250_Rodoviario": "2022-12-06",
@@ -97,6 +94,6 @@
     "GeoPortal_DF_2016": "2022-10-07",
     "IBGE_BC250_Uso_Sustentavel": "2022-12-06",
     "ign-orthophotos-wms": "2023-03-22",
-    "ign-wms": "2023-03-10",
-    "LINZ_NZ_Topo50_Gridless_Maps": "2023-03-22"
+    "ign-uav-orthophotos-wms": "2023-03-26",
+    "ign-wms": "2023-03-10"
 }
