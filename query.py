@@ -53,6 +53,8 @@ domain_lock = asyncio.Lock()
 # See https://github.com/aio-libs/aiohttp/issues/7018
 nossl_sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 nossl_sslcontext.check_hostname = False
+# Fix UNSAFE_LEGACY_RENEGOTIATION_DISABLED, see https://stackoverflow.com/questions/71603314/ssl-error-unsafe-legacy-renegotiation-disabled
+nossl_sslcontext.options |= 0x4
 nossl_sslcontext.verify_mode = ssl.CERT_NONE
 nossl_sslcontext.set_ciphers("ALL")
 
