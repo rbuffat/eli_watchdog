@@ -16,6 +16,7 @@
     "DE_Orthophotography_2017_NC": "2023-03-29",
     "Marco_Island_FL_Ortho_2021": "2023-01-27",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
+    "inegi-wms": "2023-04-01",
     "UkraineLubetskaOTG2020": "2022-10-07",
     "UkraineMykolaiv2018": "2022-10-07",
     "lu.geoportail.opendata.basemap": "2022-10-07",
@@ -36,6 +37,7 @@
     "openlabs-geoportal-public-transport": "2021-05-14",
     "openlabs-geoportal-tirana": "2021-05-14",
     "ITACyL-Castile-and-Leon": "2022-01-22",
+    "SITNA-ortofoto_maxima_actualidad": "2023-04-01",
     "sollentuna-orto": "2022-10-14",
     "scb-industrial": "2022-12-28",
     "scb-urban": "2022-12-28",
@@ -63,10 +65,9 @@
     "rio2015": "2022-10-07",
     "GeoPortal_DF_2019": "2022-10-07",
     "IBGE_Nomes_Ruas_2019": "2023-03-28",
-    "Dourados_Ortofotos": "2023-03-31",
     "BDGEx_ctm_multi": "2021-04-01",
     "IBGE_DF_Addresses": "2023-03-28",
     "GeoPortal_DF_2016": "2022-10-07",
-    "ign-uav-orthophotos-wms": "2023-03-31",
+    "ign-orthophotos-wms": "2023-04-01",
     "ign-wms": "2023-03-10"
 }
