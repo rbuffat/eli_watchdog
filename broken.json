@@ -17,7 +17,9 @@
     "Marco_Island_FL_Ortho_2021": "2023-01-27",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "inegi-wms": "2023-04-01",
+    "UkraineCherkasy2021": "2023-04-02",
     "UkraineLubetskaOTG2020": "2022-10-07",
+    "UkraineCherkasy2015": "2023-04-02",
     "UkraineMykolaiv2018": "2022-10-07",
     "lu.geoportail.opendata.basemap": "2022-10-07",
     "osmie_tie_not_counties": "2022-01-07",
@@ -69,5 +71,6 @@
     "IBGE_DF_Addresses": "2023-03-28",
     "GeoPortal_DF_2016": "2022-10-07",
     "ign-orthophotos-wms": "2023-04-01",
+    "ign-uav-orthophotos-wms": "2023-04-02",
     "ign-wms": "2023-03-10"
 }
