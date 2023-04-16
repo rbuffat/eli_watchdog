@@ -1,7 +1,5 @@
 {
     "ign-wms": "2023-04-15",
-    "ign-orthophotos-wms": "2023-04-15",
-    "ign-uav-orthophotos-wms": "2023-04-15",
     "GeoPortal_DF_2016": "2023-04-09",
     "BDGEx_ctm_multi": "2021-04-01",
     "rio2015": "2022-10-07",
@@ -42,7 +40,6 @@
     "Lodz-2015": "2020-09-14",
     "Zabrze-2011": "2023-02-07",
     "kartverket-tilgjengelighet": "2022-10-07",
-    "geovekst-nib-historic": "2023-04-15",
     "riksantikvaren-kulturminner": "2022-10-07",
     "UkraineMykolaiv2018": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
@@ -68,6 +65,7 @@
     "MCGIS-County-NAIP-Imagery-2017": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2015": "2022-10-07",
     "Marco_Island_FL_Ortho_2021": "2023-01-27",
+    "CT_ECO_Shaded_relief_2016": "2023-04-16",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "DE_Orthophotography_2017_NC": "2023-03-29",
     "DE_Orthophotography_2017_Infrared": "2023-03-29",
