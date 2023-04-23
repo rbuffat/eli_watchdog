@@ -1,6 +1,5 @@
 {
     "ign-wms": "2023-04-15",
-    "ign-orthophotos-wms": "2023-04-22",
     "ign-uav-orthophotos-wms": "2023-04-22",
     "GeoPortal_DF_2016": "2023-04-09",
     "BDGEx_ctm_multi": "2021-04-01",
@@ -43,7 +42,6 @@
     "Zabrze-2011": "2023-02-07",
     "Czestochowa-buildings": "2023-04-19",
     "kartverket-tilgjengelighet": "2022-10-07",
-    "geovekst-nib-historic": "2023-04-22",
     "riksantikvaren-kulturminner": "2022-10-07",
     "UkraineMykolaiv2018": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
