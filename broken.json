@@ -4,14 +4,9 @@
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
-    "ign-orthophotos-wms": "2023-04-30",
-    "ign-uav-orthophotos-wms": "2023-04-30",
-    "GeoPortal_DF_2015": "2023-04-09",
     "IBGE_Nomes_Ruas_2019": "2023-03-28",
     "IBGE_DF_Addresses": "2023-03-28",
     "rio2015": "2022-10-07",
-    "GeoPortal_DF_2019": "2023-04-09",
-    "GeoPortal_DF_2016": "2023-04-09",
     "BDGEx_ctm_multi": "2021-04-01",
     "osm-mapnik-no_labels": "2022-11-18",
     "openpt_map": "2021-02-05",
@@ -25,7 +20,6 @@
     "MCGIS-County-NAIP-Imagery-2019": "2022-10-07",
     "MCGIS-County-NAIP-Imagery-2017": "2022-10-07",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
-    "geodata.md.gov-MD_ThreeInchImagery": "2023-04-25",
     "fr.dpt.06.2020.storm.alex": "2022-02-03",
     "osmie_tie_not_counties": "2022-01-07",
     "scb-settlements": "2022-12-28",
@@ -70,7 +64,7 @@
     "COS2018": "2023-02-16",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
+    "IDEIB": "2023-05-01",
     "SITNA-ortofoto_maxima_actualidad": "2023-04-01",
-    "ITACyL-Castile-and-Leon": "2022-01-22",
-    "lu.geoportail.opendata.basemap": "2022-10-07"
+    "ITACyL-Castile-and-Leon": "2022-01-22"
 }
