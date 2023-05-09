@@ -9,4 +9,4 @@ aiohttp==3.8.4
 aiodns==3.0.0
 Brotli==1.0.9
 validators==0.20.0
-PyGithub==1.58.1
+PyGithub==1.58.2
