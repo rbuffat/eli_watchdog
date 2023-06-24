@@ -3,7 +3,7 @@
     "rio2015": "2022-10-07",
     "BDGEx_ctm_multi": "2021-04-01",
     "IBGE_DF_Addresses": "2023-03-28",
-    "ign-orthophotos-wms": "2023-06-23",
+    "ign-wms": "2023-06-24",
     "ign-uav-orthophotos-wms": "2023-06-22",
     "KTBASELSTADT2015": "2022-12-01",
     "kt_tg_radrouten": "2023-01-20",
@@ -41,7 +41,6 @@
     "Geoportal2-PL-prng": "2021-11-06",
     "stalowowolski-buildings": "2022-10-07",
     "Czestochowa-buildings": "2023-04-19",
-    "lancucki-buildings": "2023-06-23",
     "rzeszowski-aerial": "2022-10-07",
     "poznan-ortofotomapa2014": "2022-12-15",
     "Lodz-buildings": "2020-09-14",
@@ -72,8 +71,8 @@
     "gaza_pleiades_20140706": "2021-01-21",
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
     "US_Forest_Service_roads_overlay": "2023-05-30",
+    "CT_ECO_Shaded_relief_2016": "2023-06-24",
     "Marco_Island_FL_Ortho_2021": "2023-01-27",
-    "Mercer_OH_2021": "2023-06-16",
     "Stratmap20_NCCIR_CapArea_McLennan": "2022-10-07",
     "inegi-wms": "2023-04-01"
 }
