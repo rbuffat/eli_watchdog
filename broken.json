@@ -1,4 +1,5 @@
 {
+    "LINZ_NZ_Topo50_Gridless_Maps": "2023-10-10",
     "inegi-wms": "2023-04-01",
     "US_Forest_Service_roads_overlay": "2023-05-30",
     "gaza_pleiades_20140706_nir": "2021-01-21",
@@ -17,7 +18,6 @@
     "BDGEx_ctm_multi": "2021-04-01",
     "ign-wms": "2023-10-07",
     "ign-uav-orthophotos-wms": "2023-10-09",
-    "ign-orthophotos-wms": "2023-10-05",
     "South-Tyrol-DTM_2013": "2023-09-16",
     "Lombardia-Italy-CTR": "2023-09-27",
     "South-Tyrol-DTM_2006_2_5m": "2023-09-16",
