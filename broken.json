@@ -1,5 +1,4 @@
 {
-    "LINZ_NZ_Topo50_Gridless_Maps": "2023-10-10",
     "inegi-wms": "2023-04-01",
     "US_Forest_Service_roads_overlay": "2023-05-30",
     "gaza_pleiades_20140706_nir": "2021-01-21",
@@ -16,8 +15,6 @@
     "IBGE_Nomes_Ruas_2019": "2023-03-28",
     "IBGE_DF_Addresses": "2023-03-28",
     "BDGEx_ctm_multi": "2021-04-01",
-    "ign-wms": "2023-10-07",
-    "ign-uav-orthophotos-wms": "2023-10-09",
     "South-Tyrol-DTM_2013": "2023-09-16",
     "Lombardia-Italy-CTR": "2023-09-27",
     "South-Tyrol-DTM_2006_2_5m": "2023-09-16",
@@ -44,7 +41,10 @@
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "Uster-2008": "2022-12-01",
     "KTBASELSTADT2017": "2022-12-01",
+    "Aargau-AGIS-2017": "2023-10-11",
+    "Aargau-AGIS-2022": "2023-10-11",
     "KTBASELSTADT2015": "2022-12-01",
+    "Aargau-AGIS-2014": "2023-10-11",
     "kt_tg_radrouten": "2023-01-20",
     "scb-industrial": "2022-12-28",
     "scb-settlements": "2022-12-28",
@@ -61,6 +61,7 @@
     "lubaczowski-buildings": "2020-09-14",
     "Lodz-2015": "2020-09-14",
     "Lodz-buildings": "2020-09-14",
+    "Lodz-2017": "2023-10-11",
     "poznan-ortofotomapa2014": "2022-12-15",
     "rzeszowski-aerial": "2022-10-07",
     "rzeszowski-buildings": "2022-10-07",
@@ -90,5 +91,6 @@
     "IDEIB": "2023-05-01",
     "ITACyL-Castile-and-Leon": "2022-01-22",
     "SITNA-ortofoto_maxima_actualidad": "2023-06-14",
-    "osmie_tie_not_counties": "2022-01-07"
+    "osmie_tie_not_counties": "2022-01-07",
+    "Geoportal-Ortofoto_2016_RM": "2023-10-11"
 }
