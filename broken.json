@@ -17,6 +17,7 @@
     "BDGEx_ctm_multi": "2021-04-01",
     "ign-wms": "2023-10-13",
     "ign-uav-orthophotos-wms": "2023-10-13",
+    "ign-orthophotos-wms": "2023-10-14",
     "South-Tyrol-DTM_2013": "2023-09-16",
     "Lombardia-Italy-CTR": "2023-09-27",
     "South-Tyrol-DTM_2006_2_5m": "2023-09-16",
@@ -71,14 +72,12 @@
     "fta-digiroad-functional": "2023-06-27",
     "kartverket-tilgjengelighet": "2022-10-07",
     "riksantikvaren-kulturminner": "2022-10-07",
-    "geovekst-nib-historic": "2023-10-13",
     "UkraineMykolaiv2018": "2022-10-07",
     "UkraineLubetskaOTG2020": "2022-10-07",
-    "TEClines": "2023-10-13",
-    "TECstops": "2023-10-13",
     "SPW_PICC": "2023-10-13",
     "IDEIB": "2023-05-01",
     "ITACyL-Castile-and-Leon": "2022-01-22",
     "SITNA-ortofoto_maxima_actualidad": "2023-06-14",
-    "osmie_tie_not_counties": "2022-01-07"
+    "osmie_tie_not_counties": "2022-01-07",
+    "Geoportal-Ortofoto_2016_RM": "2023-10-14"
 }
