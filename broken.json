@@ -46,7 +46,7 @@
     "KTBASELSTADT2015": "2022-12-01",
     "kt_tg_radrouten": "2023-01-20",
     "Uster-2008": "2022-12-01",
-    "Aargau-AGIS-2021": "2023-10-29",
+    "Zuerich-zh_luftbild2011-tms": "2023-10-30",
     "PrahaIPRlow-vegetationorthophoto": "2020-09-14",
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "UkraineMykolaiv2018": "2022-10-07",
@@ -79,7 +79,7 @@
     "IBGE_DF_Addresses": "2023-03-28",
     "BDGEx_ctm_multi": "2021-04-01",
     "ign-wms": "2023-10-22",
-    "ign-orthophotos-wms": "2023-10-29",
+    "ign-uav-orthophotos-wms": "2023-10-30",
     "gaza_pleiades_20140706_nir": "2021-01-21",
     "gaza_pleiades_20140706": "2021-01-21",
     "Pangasinan_Bulacan_HiRes": "2022-10-07"
