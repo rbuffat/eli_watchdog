@@ -9,15 +9,12 @@
     "stamen-terrain-background": "2023-11-02",
     "EOXAT2022CLOUDLESS": "2023-10-28",
     "EOXAT2019CLOUDLESS": "2023-08-03",
-    "ign-orthophotos-wms": "2023-11-22",
-    "ign-uav-orthophotos-wms": "2023-11-21",
     "ign-wms": "2023-11-20",
     "Agroindustria-wms": "2023-11-01",
     "IBGE_DF_Addresses": "2023-03-28",
     "IBGE_Nomes_Ruas_2019": "2023-03-28",
     "BDGEx_ctm_multi": "2021-04-01",
     "US_Forest_Service_roads_overlay": "2023-05-30",
-    "Hennepin_Ortho_2022": "2023-10-18",
     "inegi-wms": "2023-04-01",
     "Pangasinan_Bulacan_HiRes": "2022-10-07",
     "gaza_pleiades_20140706": "2021-01-21",
@@ -80,6 +77,5 @@
     "PrahaIPRlatestorthophoto": "2020-11-28",
     "turku-orto": "2023-11-16",
     "fta-digiroad-functional": "2023-06-27",
-    "fta-digiroad-option": "2023-06-27",
-    "South_Africa-CD_NGI-Aerial": "2023-11-23"
+    "fta-digiroad-option": "2023-06-27"
 }
